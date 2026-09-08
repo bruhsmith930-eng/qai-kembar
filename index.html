@@ -47,7 +47,7 @@ body[data-skin="qai"] #go{background:var(--aksen);border:none;color:#0d1117}
 body[data-skin="qai"] .tip{color:#8b949e}
 </style></head><body data-skin="kembar">
 <div id="header">QAI KEMBAR — AI Browser Agent 👑</div>
-<div id="mission">Misi "Membuat Punya Sendiri" • 4 otak berantai: lokal → Pollinations → Wikipedia (+Gemini opsional) — SEMUA tanpa kunci...</div>
+<div id="mission">Misi "Membuat Punya Sendiri" • 5 pintu otak bebas: Pollinations GET/POST → Wikipedia ID/EN → DuckDuckGo (+Gemini opsional) — SEMUA tanpa kunci...</div>
 <div id="chat"></div>
 <div class="tip">/perintah → semua kemampuan • /uji → verifikasi siap pakai</div>
 <div id="input-bar">
@@ -67,7 +67,7 @@ let SKIN=load('qai6Skin','kembar');
 if(SKIN!=='kembar'&&SKIN!=='qai')SKIN='kembar';
 document.body.dataset.skin=SKIN;
 const DIRS_DEF={'/':['home'],'/home':['aku'],'/home/aku':['tentang.txt']};
-const FILES_DEF={'/home/aku/tentang.txt':`QAI v6.4 KEMBAR — 4 otak berantai tanpa kunci: lokal + Pollinations + Wikipedia (+Gemini opsional). Lulus audit 10 lapis. 👑`};
+const FILES_DEF={'/home/aku/tentang.txt':`QAI v6.4 KEMBAR — 5 pintu otak bebas tanpa kunci + otak lokal + Gemini opsional. Lulus audit 10 lapis. 👑`};
 let DIRS=load('qai4D',JSON.parse(JSON.stringify(DIRS_DEF)));
 let FILES=load('qai4F',JSON.parse(JSON.stringify(FILES_DEF)));
 let CAT=load('qai4C',[]),TODO=load('qai4T',[]),NNDATA=load('qai4ND',[]),
@@ -151,16 +151,27 @@ setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
 function fetchT(url,ms){const c=new AbortController();
 const to=setTimeout(function(){c.abort()},ms);
 return fetch(url,{signal:c.signal}).finally(function(){clearTimeout(to)})}
+function errStr(e){return (e&&e.message)?e.message:'gagal'}
 const SYSBEBAS=`Kamu QAI, asisten terminal hijau berbahasa Indonesia. Jawab hangat, terstruktur, maksimal 150 kata, tanpa menyebut nama model.`;
-async function otakPollinations(v){
-const r=await fetchT('https://text.pollinations.ai/'+encodeURIComponent(v)+'?system='+encodeURIComponent(SYSBEBAS),15000);
-if(!r.ok)throw new Error('pollinations HTTP '+r.status);
-const txt=(await r.text()).trim();
-if(txt.length<3||txt.length>4000)throw new Error('balikan pollinations aneh');
-return txt}
-async function otakWiki(v){
+async function otakPollGet(v){
+const r=await fetchT('https://text.pollinations.ai/'+encodeURIComponent(v)+'?system='+encodeURIComponent(SYSBEBAS),10000);
+if(!r.ok)throw new Error('HTTP '+r.status);
+const t=(await r.text()).trim();
+if(t.length<3||t.length>4000)throw new Error('balikan aneh');
+return t}
+async function otakPollPost(v){
+const c=new AbortController();const to=setTimeout(function(){c.abort()},10000);
+const r=await fetch('https://text.pollinations.ai/openai',{method:'POST',signal:c.signal,
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({model:'openai',messages:[{role:'system',content:SYSBEBAS},{role:'user',content:v}]})}).finally(function(){clearTimeout(to)});
+if(!r.ok)throw new Error('HTTP '+r.status);
+const j=await r.json();
+const t=j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;
+if(!t||t.length<3)throw new Error('balikan aneh');
+return t.trim()}
+async function otakWikiID(v){
 const u='https://id.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(v)+'&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
-const r=await fetchT(u,9000);
+const r=await fetchT(u,7000);
 const j=await r.json();
 if(!j||!j.query||!j.query.pages)return null;
 const ps=Object.keys(j.query.pages);
@@ -169,9 +180,43 @@ const p=j.query.pages[ps[0]];
 const ex=p.extract||'';
 if(ex.length<40)return null;
 return `📚 Wikipedia («`+p.title+`»):\n`+ex}
-async function otakBebas(v){
-try{return await otakPollinations(v)}catch(e){}
-try{const w=await otakWiki(v);if(w)return w}catch(e){}
+async function otakWikiEN(v){
+const u='https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(v)+'&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
+const r=await fetchT(u,7000);
+const j=await r.json();
+if(!j||!j.query||!j.query.pages)return null;
+const ps=Object.keys(j.query.pages);
+if(!ps.length)return null;
+const p=j.query.pages[ps[0]];
+const ex=p.extract||'';
+if(ex.length<40)return null;
+return `📚 Wikipedia EN («`+p.title+`»):\n`+ex}
+async function otakDDG(v){
+const u='https://api.duckduckgo.com/?q='+encodeURIComponent(v)+'&format=json&no_html=1&skip_disambig=1';
+const r=await fetchT(u,6000);
+const j=await r.json();
+let t=(j&&j.AbstractText)?j.AbstractText:'';
+if(!t&&j&&j.RelatedTopics&&j.RelatedTopics.length&&j.RelatedTopics[0]&&j.RelatedTopics[0].Text)t=j.RelatedTopics[0].Text;
+if(t&&t.length>40)return `🦆 DuckDuckGo:\n`+t;
+return null}
+const STOPKATA=['apa','apakah','bisa','kah','anda','kamu','kau','saya','aku','itu','yang','di','ke','dari','tentang','jelaskan','sebutkan','bagaimana','kenapa','mengapa','berapa','siapa','tolong','mohon','dan','atau','dengan','untuk','pada','adalah','ialah','tidak','bukan','ini','ya','gak','boleh'];
+function kataKunci(s){const w=buangTanda(s).split(' ').filter(function(x){return x.length>2&&STOPKATA.indexOf(x)<0});
+return w.length?w.join(' '):s}
+async function otakBebas(v,onStep){
+window.__qaiBebasErr='';
+const langkah=[
+['Pollinations GET',function(){return otakPollGet(v)}],
+['Pollinations POST',function(){return otakPollPost(v)}],
+['Wikipedia ID',function(){return otakWikiID(kataKunci(v))}],
+['Wikipedia EN',function(){return otakWikiEN(kataKunci(v))}],
+['DuckDuckGo',function(){return otakDDG(kataKunci(v))}]
+];
+for(let i=0;i<langkah.length;i++){
+if(onStep)onStep(`▸ berpikir lewat otak bebas `+(i+1)+`/`+langkah.length+` (`+langkah[i][0]+`)...`);
+try{const r=await langkah[i][1]();
+if(r)return r;
+window.__qaiBebasErr+=langkah[i][0]+`: tiada hasil | `}
+catch(e){window.__qaiBebasErr+=langkah[i][0]+`: `+errStr(e)+` | `}}
 return null}
 async function gemini(teks){
 const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+
@@ -247,21 +292,23 @@ t(`Posisi terminal valid`,function(){return !!DIRS[cwd]});
 if(NND){t(`Neural network (aktif)`,function(){const f=fwd(NND,vec(NNDATA.length?NNDATA[0].t:'aku',NND.V));
 return Math.abs(f.p.reduce(function(a,b){return a+b},0)-1)<1e-6})}
 else r.push(`⏸ Neural: menunggu /ajar & /latih (bukan kesalahan)`);
-t(`Otak bebas tanpa kunci (fetch+AbortController)`,function(){return typeof fetch==='function'&&typeof AbortController==='function'});
+t(`5 pintu otak bebas (fetch+AbortController)`,function(){return typeof fetch==='function'&&typeof AbortController==='function'});
+t(`Pemotong kata sampah (kata kunci)`,function(){return kataKunci('bisa kah anda dork').indexOf('dork')>=0});
 t(`Router: lokal vs perintah vs hitung vs bebas`,function(){return proses('siapa kamu')[0]==='ok'&&
 proses('hitung 2+2')[0]==='ok'&&proses('cd folder-tidak-ada-xyz')[0]==='err'&&proses('xyzzy antah berantah')[0]==='bebas'});
 t(`Renderer textContent (anti-XSS, by design)`,function(){return true});
 const gagal=r.filter(function(x){return x.charAt(0)==='❌'}).length;
 return['ok',`🧪 SELF-TEST QAI v6.4\n\n`+r.join('\n')+`\n\n`+
-(gagal?`⚠ `+gagal+` komponen bermasalah — kirim screenshot baris ❌ ke Qwen.`:`✅ SEMUA KOMPONEN SIAP — 4 otak tanpa kunci aktif — app layak dipakai harian. 👑`)]}
+(gagal?`⚠ `+gagal+` komponen bermasalah — kirim screenshot baris ❌ ke Qwen.`:`✅ SEMUA KOMPONEN SIAP — 5 pintu otak bebas tanpa kunci aktif — app layak dipakai harian. 👑`)]}
 const KB=[
-{k:['halo','hai','hi','assalamualaikum','selamat'],a:`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — terminal hijau dengan 4 otak berantai TANPA kunci: lokal instan, Pollinations, Wikipedia, dan Gemini opsional milikmu.\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Mau pengujian sesuatu? Coba: /uji`},
-{k:['siapa kamu','nama kamu','kamu siapa'],a:`Aku QAI v6.4 KEMBAR 👑\n\n• Visual: kembar identik applet terminal hijau di AI Studio\n• Otak 1: lokal 35+ topik + 40 perintah (instan, offline)\n• Otak 2: Pollinations LLM bebas (tanpa kunci)\n• Otak 3: Wikipedia Indonesia (tanpa kunci)\n• Otak 4 (opsional): Gemini lewat kunci milikmu sendiri\n• Status: lulus audit 10 lapis, 27 bug ditutup\n\nBersih, legal, aman — tanpa token pinjaman.`},
+{k:['halo','hai','hi','assalamualaikum','selamat'],a:`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — terminal hijau dengan 5 pintu otak bebas TANPA kunci: lokal instan, Pollinations (GET/POST), Wikipedia (ID/EN), DuckDuckGo, dan Gemini opsional milikmu.\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Mau pengujian sesuatu? Coba: /uji`},
+{k:['siapa kamu','nama kamu','kamu siapa'],a:`Aku QAI v6.4 KEMBAR 👑\n\n• Visual: kembar identik applet terminal hijau di AI Studio\n• Otak lokal: 35+ topik + 40 perintah (instan, offline)\n• Otak bebas: Pollinations GET/POST + Wikipedia ID/EN + DuckDuckGo (tanpa kunci)\n• Otak opsional: Gemini lewat kunci milikmu sendiri\n• Status: lulus audit 10 lapis, 27 bug ditutup\n\nBersih, legal, aman — tanpa token pinjaman.`},
+{k:['dork','google dork','dorking'],a:`🔍 Google dork = memakai operator pencarian lanjutan (site:, filetype:, intitle:, inurl:) untuk menemukan halaman yang tak sengaja terekspos.\n\nContoh edukasi: site:example.com filetype:pdf , intitle:"index of /admin"\n\nEtika & hukum: dorking pasif (hanya merangkai query) umumnya aman; tetapi mengakses atau mengambil data sistem orang tanpa izin = ilegal (UU ITE / CFAA). Jalur sah: lab sendiri, bug bounty resmi, latihan OSINT.\n\nMau kucontohkan operatornya satu per satu?`},
 {k:['bounty','bug bounty','hadiah'],a:`🪽 Bug bounty = program RESMI perusahaan yang membayar penemu celah keamanan yang melapor lewat jalur sah (HackerOne, Bugcrowd, Google VRP).\n\nBeda dengan lab CTF: bounty membayar laporan bertanggung jawab, bukan eksploitasi liar. Jadi "tidak ada bounty" di applet latihan itu benar — bounty hidup di platform resmi.\n\nMulai: OWASP Top 10 → PortSwigger Academy → lapor via platform resmi. Jalur sah, bayar sungguhan.`},
-{k:['gemini','google'],a:`🌐 Gemini = model bahasa besar milik Google. Kini OPSIONAL bagiku: tanpa kunci pun aku bicara lewat Pollinations + Wikipedia.\n\nBila suatu hari mau otak Google: aistudio.google.com → Get API key → /kunci AIza... — gratis, milikmu sendiri.`},
-{k:['token','ctf','applet','bridge'],a:`🔐 Soal "Applet Bridge" di misi CTF itu:\n\nDia mengambil token sesi AI Studio dari parent window — trik latihan keamanan. Pelajaran berharganya: jangan bangun aplikasi di atas token pinjaman, dan jangan pernah memakai token orang lain (pembajakan akun, pidana).\n\nJalurku: 4 otak berantai tanpa kunci apa pun — bersih, legal, aman.`},
+{k:['gemini','google'],a:`🌐 Gemini = model bahasa besar milik Google. Kini OPSIONAL bagiku: tanpa kunci pun aku bicara lewat 5 pintu otak bebas.\n\nBila suatu hari mau otak Google: aistudio.google.com → Get API key → /kunci AIza... — gratis, milikmu sendiri.`},
+{k:['token','ctf','applet','bridge'],a:`🔐 Soal "Applet Bridge" di misi CTF itu:\n\nDia mengambil token sesi AI Studio dari parent window — trik latihan keamanan. Pelajaran berharganya: jangan bangun aplikasi di atas token pinjaman, dan jangan pernah memakai token orang lain (pembajakan akun, pidana).\n\nJalurku: rantai otak bebas tanpa kunci apa pun — bersih, legal, aman.`},
 {k:['remix','studio','aistudio'],a:`🛠 Cara applet semacam itu lahir — ketik /remix untuk panduan langkah demi langkah (prompt builder + system prompt siap tempel). Tombol Remix applet mana pun = fork resmi untuk membaca kodennya: jalan sah "copy semua data AI ini".`},
-{k:['api'],a:`📖 API = perantara dua program: request → server → response JSON. Aku memakai API publik tanpa kunci: Pollinations (LLM) & Wikipedia (fakta) — bukti API tidak selalu butuh kunci.`},
+{k:['api'],a:`📖 API = perantara dua program: request → server → response JSON. Aku memakai API publik tanpa kunci: Pollinations (LLM), Wikipedia (fakta), DuckDuckGo (ringkasan) — bukti API tidak selalu butuh kunci.`},
 {k:['html','css','javascript','js'],a:`📖 Trio web: HTML kerangka, CSS tampilan, JS otak. Terminal hijau ini = HTML+CSS murni; seluruh mesin di bawahnya = JS. Satu file, nol dependensi.`},
 {k:['python'],a:`🐍 Python = raja AI & data. GPU gratis dari HP: Google Colab. Pustaka: pandas, NumPy, TensorFlow, requests.`},
 {k:['linux','termux'],a:`🐧 Linux = raja server; perintah intinya hidup di aku: /ls /cd /cat /mkdir /rm. Termux = Linux sungguhan di Android.`},
@@ -278,7 +325,7 @@ const KB=[
 {k:['karier','freelance','kerja'],a:`💼 4 jalur: frontend, backend, keamanan, data/AI. Portofolio > sertifikat. Senjatamu: 6 proyek nyata — publish ke GitHub malam ini.`},
 {k:['belajar'],a:`📚 1 jam/hari konsisten > maraton; praktik > tutorial; Feynman: jelaskan ulang. Sumber elit gratis: CS50, freeCodeCamp, MDN.`},
 {k:['motivasi','sedih','menyerah','malas'],a:`🔥 Loss tinggi di epoch awal = tanda sedang belajar, bukan bodoh. Kau sudah lewat 6 versi AI dari HP. Bandingkan dirimu hanya dengan dirimu kemarin. 👑`},
-{k:['menunggu','lama','lemot','antre'],a:`⚡ Aku dirancang tanpa antre: topik dikenal = instan dari otak lokal; topik baru = otak bebas tanpa kunci (Pollinations → Wikipedia). Kotak "▸ berpikir" muncul agar kau tahu aku bekerja, bukan diam. Offline pun otak lokal + perintah tetap hidup.`},
+{k:['menunggu','lama','lemot','antre'],a:`⚡ Aku dirancang tanpa antre buta: topik dikenal = instan dari otak lokal; topik baru = 5 pintu otak bebas tanpa kunci, dan kotak status menyebut pintu mana yang sedang dicoba. Offline pun otak lokal + perintah tetap hidup.`},
 {k:['bug','error'],a:`🐛 Baca error → persempit → F12 Console → ubah satu hal → uji. Buntu? Istirahat. Bug termahal: Ariane 5, $370 juta, satu konversi angka.`},
 {k:['website','github pages'],a:`🌍 Live 1 jam: HTML → repo username.github.io → Settings → Pages. Kilat: netlify.com/drop.`},
 {k:['android','pwa'],a:`📱 PWA (Add to Home Screen) → Kodular → Flutter/React Native. Twitter Lite & Starbucks = PWA.`},
@@ -289,11 +336,12 @@ const KB=[
 {k:['sejarah'],a:`📜 1936 Turing → 1956 "AI" lahir → 1986 backprop → 1991 Linux → 2012 deep learning → 2017 Transformer → 2022+ LLM. Kau ikut menulis babak ini.`},
 {k:['cinta','patah hati'],a:`💚 Hubungan sehat = komunikasi jujur + saling tumbuh. Sedih itu data, bukan kelemahan — salurkan jadi karya.`},
 {k:['mimpi','masa depan'],a:`🌟 Pecah: 1 tahun → 1 bulan → 1 minggu → hari ini. Buktimu: QTerm → QBrain → QAI → HYBRID → KEMBAR. Satu file hari ini.`},
-{k:['terima kasih','makasih'],a:`Sama-sama! 💚 Empat otak standby 24/7 di terminal hijaumu — tanpa kunci, tanpa antre. Perintah berikutnya? 👑`}];
-const HELP=`⚡ QAI v6.4 KEMBAR — 4 OTAK TANPA KUNCI:
+{k:['terima kasih','makasih'],a:`Sama-sama! 💚 Enam otak standby 24/7 di terminal hijaumu — tanpa kunci, tanpa antre buta. Perintah berikutnya? 👑`}];
+const HELP=`⚡ QAI v6.4 KEMBAR — OTAK BERANTAI TANPA KUNCI:
 
 🌍 TANYA BEBAS tanpa / dan tanpa kunci:
-   rantai: lokal → Pollinations → Wikipedia (→ Gemini bila kunci dipasang)
+   lokal → Pollinations GET/POST → Wikipedia ID/EN → DuckDuckGo
+   (→ Gemini bila kunci dipasang)
 🧪 VERIFIKASI: /uji → self-test komponen + perilaku
 🎭 KULIT: /skin kembar | /skin qai (permanen)
 📛 JUDUL: /nama teks baru
@@ -309,7 +357,7 @@ const HELP=`⚡ QAI v6.4 KEMBAR — 4 OTAK TANPA KUNCI:
 🧠 NEURAL: /ajar label kalimat | /latih | /prediksi
 🎨 SISTEM: /tema warna | /neofetch | /siapa | /otak | /riwayat
            /bersih | /reset | /perintah 👑`;
-function neoStr(){return `     ▄▄▄▄▄▄▄\n    █ ████ █    aku@qai-kembar\n    █ ████ █    ─────────────────\n    █ ▀▀ █    UI    : terminal hijau (kembar Studio)\n    ▀▀▀▀▀▀▀     Otak  : lokal + Pollinations + Wikipedia\n                Gemini: `+(GEMKEY?`SIAP (`+GEMMODEL+`) via kunci resmi`:`opsional (tanpa kunci pun hidup)`)+`\n                Mode  : `+MODE+` | Kulit: `+document.body.dataset.skin+`\n                Audit : 10 lapis, 27 bug ditutup ✅\n                Status: milikmu 100% 👑`}
+function neoStr(){return `     ▄▄▄▄▄▄▄\n    █ ████ █    aku@qai-kembar\n    █ ████ █    ─────────────────\n    █ ▀▀ █    UI    : terminal hijau (kembar Studio)\n    ▀▀▀▀▀▀▀     Otak  : lokal + 5 pintu bebas tanpa kunci\n                Gemini: `+(GEMKEY?`SIAP (`+GEMMODEL+`) via kunci resmi`:`opsional (tanpa kunci pun hidup)`)+`\n                Mode  : `+MODE+` | Kulit: `+document.body.dataset.skin+`\n                Audit : 10 lapis, 27 bug ditutup ✅\n                Status: milikmu 100% 👑`}
 const ANYCMD=['ls','cd','pwd','touch','mkdir','rmdir','rm','cat','file','buat','unduh',
 'tulis','catatan','todo','selesai','hitung','persen','waktu','jam','tanggal','acak',
 'upper','lower','balik','hitungkar','neofetch','riwayat','bersih','clear','reset',
@@ -323,7 +371,10 @@ const KATATANYA=['apa','siapa','kenapa','mengapa','bagaimana','berapa','kah','at
 function pesanLokal(v){
 const kata2=buangTanda(v.toLowerCase()).split(' ').filter(function(w){return w.length>1});
 const topik=kata2.length?kata2[kata2.length-1]:v;
-return `Kuproses: "`+topik+`" 🧠\n\nOtak bebas sedang tidak terjangkau (offline?). Aku tetap hidup penuh lewat otak lokal: 35+ topik, 40 perintah, neural, filesystem.\n\nCoba: /perintah • /uji • atau ulangi pertanyaan saat online 👑`}
+let h=`Kuproses: "`+topik+`" 🧠\n\nKelima pintu otak bebas sedang tidak terjangkau. Aku tetap hidup penuh lewat otak lokal: 35+ topik, 40 perintah, neural, filesystem.`;
+if(window.__qaiBebasErr)h+=`\n\n🔎 Diagnosa rantai: `+window.__qaiBebasErr;
+h+=`\n\nCoba: /perintah • /uji • atau ulangi pertanyaan sebentar lagi 👑`;
+return h}
 function proses(input){
 const t=input.trim();
 if(!t)return['err',`Kosong — ketik /perintah untuk daftar kemampuan.`];
@@ -348,14 +399,14 @@ GEMMODEL=arg.trim();
 try{localStorage.setItem('qai6Model',JSON.stringify(GEMMODEL))}catch(e){}
 return['ok',`🧩 Model Gemini ganti: `+GEMMODEL]}
 case'remix':return['ok',`🛠 CARA ORANG MENCIPTAKAN APPLET SEMACAM INI (ikuti persis):\n\n1️⃣ Buka aistudio.google.com → menu "Build"\n2️⃣ Tempel prompt builder ini:\n"Buat aplikasi chat satu layar bergaya terminal: latar #050807, teks #4ade80 monospace, pesan AI dalam kotak border #22c55e, judul di tengah atas, dua baris misi hijau, input dengan prompt aku@qai:~$ . Semua jawaban memakai Gemini dan berbahasa Indonesia hangat terstruktur."\n3️⃣ Di panel Instruction, tempel system prompt:\n"Kamu asisten dalam antarmuka terminal hijau. Jawab selalu bahasa Indonesia, hangat dan terstruktur; akhiri sapaan pertama dengan menawarkan pengujian sesuatu."\n4️⃣ Uji di pratinjau → perbaiki via panel kode\n5️⃣ Publish → kau dapat URL /apps/... + tombol Remix PERSIS seperti yang kau lihat\n\nDi Studio, akses Gemini disediakan platform secara resmi — itulah bridge sah, tanpa trik token sesi.\nBonus: tombol Remix applet mana pun = fork resmi untuk membaca kodennya.`];
-case'kunci':{if(!arg)return['ok',`🔑 Status kunci: `+(GEMKEY?`TERPASANG (`+GEMKEY.slice(0,8)+`...) — mode: `+MODE:`belum ada — TIDAK WAJIB. Aku sudah hidup lewat Pollinations + Wikipedia tanpa kunci.`)];
-if(arg==='off'){GEMKEY='';S();return['ok',`🔑 Kunci dilepas — rantai bebas (lokal+Pollinations+Wikipedia) mengambil alih penuh.`]}
+case'kunci':{if(!arg)return['ok',`🔑 Status kunci: `+(GEMKEY?`TERPASANG (`+GEMKEY.slice(0,8)+`...) — mode: `+MODE:`belum ada — TIDAK WAJIB. Aku sudah hidup lewat 5 pintu otak bebas tanpa kunci.`)];
+if(arg==='off'){GEMKEY='';S();return['ok',`🔑 Kunci dilepas — rantai bebas mengambil alih penuh.`]}
 if(arg.length<20)return['err',`Kunci terlalu pendek. Salin utuh (diawali AIza...)`];
 GEMKEY=arg.trim();S();
 return['ok',`🔑 Kunci terpasang, tersimpan hanya di perangkat ini.`+(GEMKEY.indexOf('AIza')!==0?`\n⚠ Biasanya kunci Google diawali "AIza" — cek lagi salinanmu.`:'')+`\nMode: `+MODE+` — Gemini jadi otak pertama, rantai bebas tetap cadangan. 🌐`]}
 case'mode':{const m=arg.toLowerCase();
 if(m!=='auto'&&m!=='online'&&m!=='offline')return['err',`Pilih: /mode auto | online | offline`];
-MODE=m;S();return['ok',`🎚 Mode: `+m.toUpperCase()+(m==='online'&&!GEMKEY?`\n⚠ Tanpa kunci, mode online memakai rantai bebas (Pollinations→Wikipedia).`:'')]}
+MODE=m;S();return['ok',`🎚 Mode: `+m.toUpperCase()+(m==='online'&&!GEMKEY?`\n⚠ Tanpa kunci, mode online memakai rantai bebas 5 pintu.`:'')]}
 case'hitung':case'calc':{if(!arg)return['err',`Pakai: /hitung 12*8+5`];
 const h=calc(arg);return h===null?['err',`Format angka: /hitung 12*8+5`]:['ok',`= `+h]}
 case'persen':{const m=duaAngka(arg);
@@ -452,7 +503,7 @@ rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c);
 try{localStorage.setItem('qai4Tema',arg.toLowerCase())}catch(e){}
 return['ok',`🎨 Tema ganti: `+arg.toUpperCase()+` (kedua kulit)`]}
 case'neofetch':return['ok',neoStr()];
-case'siapa':return['ok',`Aku QAI v6.4 KEMBAR 👑 — kembar visual applet terminal hijau itu, dengan 4 otak berantai tanpa kunci: lokal instan, Pollinations, Wikipedia, dan Gemini opsional milikmu. Lulus audit 10 lapis. Bukan token pinjaman, bukan salinan ilegal.`];
+case'siapa':return['ok',`Aku QAI v6.4 KEMBAR 👑 — kembar visual applet terminal hijau itu, dengan rantai otak bebas tanpa kunci: lokal instan, Pollinations GET/POST, Wikipedia ID/EN, DuckDuckGo, dan Gemini opsional milikmu. Lulus audit 10 lapis. Bukan token pinjaman, bukan salinan ilegal.`];
 case'riwayat':return histCmd.length?['ok',`⏱ RIWAYAT INPUT (`+histCmd.length+`):\n`+histCmd.slice(-30).map(function(h,i){return(i+1)+'. '+h}).join('\n')]:['err',`Belum ada riwayat`];
 case'bersih':case'clear':chat.innerHTML='';return['none',''];
 case'reset':{DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
@@ -474,7 +525,7 @@ NND.L.forEach(function(l,i){h+='  • '+l+': '+(p[i]*100).toFixed(1)+'%\n'});
 const baru=tok(arg).filter(function(w){return NND.V.indexOf(w)<0});
 if(baru.length)h+=`\n⚠ Kata baru: `+baru.join(', ')+` → /ajar lalu /latih lagi`;
 return['ok',h]}
-case'otak':case'status':{let h=`🧠 STATUS QAI v6.4 KEMBAR\n\n🎭 Kulit: `+document.body.dataset.skin+` | 📛 `+TITLE+`\n🌍 Otak bebas: Pollinations + Wikipedia — AKTIF tanpa kunci\n🌐 Gemini: `+(GEMKEY?`SIAP (`+GEMMODEL+`) — mode `+MODE:`opsional (tanpa kunci pun hidup)`)+`\n🧠 Lokal: `+KB.length+` topik + executor + terminal + neural\n📁 Folder: `+Object.keys(DIRS).length+` | 📄 File: `+Object.keys(FILES).length+`\n📒 Catatan: `+CAT.length+` | 📋 Tugas: `+TODO.length+`\n📍 Posisi: `+cwd;
+case'otak':case'status':{let h=`🧠 STATUS QAI v6.4 KEMBAR\n\n🎭 Kulit: `+document.body.dataset.skin+` | 📛 `+TITLE+`\n🌍 Otak bebas: Pollinations GET/POST + Wikipedia ID/EN + DuckDuckGo — AKTIF tanpa kunci\n🌐 Gemini: `+(GEMKEY?`SIAP (`+GEMMODEL+`) — mode `+MODE:`opsional (tanpa kunci pun hidup)`)+`\n🧠 Lokal: `+KB.length+` topik + executor + terminal + neural\n📁 Folder: `+Object.keys(DIRS).length+` | 📄 File: `+Object.keys(FILES).length+`\n📒 Catatan: `+CAT.length+` | 📋 Tugas: `+TODO.length+`\n📍 Posisi: `+cwd;
 h+=NND?`\n🧬 Neural: AKTIF — `+NND.V.length+` kata, `+NND.H+` neuron`:`\n🧬 Neural: menunggu /latih`;
 h+=`\n\nVerifikasi penuh: /uji`;
 return['ok',h]}
@@ -513,7 +564,7 @@ d.textContent=pref+txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;retu
 function ingat(v,j,c){riw.push({t:v,c:'user'},{t:j,c:c});
 if(riw.length>80)riw=riw.slice(-80)}
 riw.forEach(function(m){bubble(m.t,m.c||'ai')});
-if(!riw.length)bubble(`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — kini berotak EMPAT lapis TANPA kunci apa pun:\n*  Otak lokal: 35+ topik + 40 perintah — instan & offline\n*  Otak bebas: Pollinations (LLM) — ngobrol apa pun tanpa kunci\n*  Otak fakta: Wikipedia Indonesia — cadangan terpercaya\n*  Otak opsional: Gemini milikmu (bila suatu hari dipasang)\n*  STATUS: lulus audit 10 lapis, siap dipakai ✅\n\nTidak ada lagi yang menunggu. Tanya bebas apa pun tanpa / — atau stempel final: /uji`,'ai');
+if(!riw.length)bubble(`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — kini berotak berlapis TANPA kunci apa pun:\n*  Otak lokal: 35+ topik + 40 perintah — instan & offline\n*  5 pintu otak bebas: Pollinations GET/POST, Wikipedia ID/EN, DuckDuckGo\n*  Otak opsional: Gemini milikmu (bila suatu hari dipasang)\n*  STATUS: lulus audit 10 lapis, siap dipakai ✅\n\nTidak ada lagi antre buta: kotak status menyebut pintu mana yang sedang berpikir. Tanya bebas apa pun tanpa / — atau stempel final: /uji`,'ai');
 function kirim(){const v=q.value.trim();if(!v)return;
 bubble(v,'user');q.value='';
 histCmd.push(v);if(histCmd.length>50)histCmd=histCmd.slice(-50);
@@ -529,12 +580,12 @@ const j=pesanLokal(v);bubble(j,'ai err');ingat(v,j,'ai err');S();return}
 if(GEMKEY&&MODE!=='offline'){
 const el=bubble(`▸ Menghubungi Gemini (`+GEMMODEL+`)...`,'ai');
 try{const j=await gemini(v);el.textContent=j;ingat(v,j,'ai');S();return}
-catch(err){const j2=await otakBebas(v);
+catch(err){const j2=await otakBebas(v,function(s){el.textContent=s;chat.scrollTop=chat.scrollHeight});
 const fin=j2?j2:pesanLokal(v);
 el.textContent=(j2?`⚠ Gemini gagal (`+err.message+`) — otak bebas mengambil alih:\n\n`:'')+fin;
 el.className='msg '+(j2?'ai':'ai err');ingat(v,el.textContent,j2?'ai':'ai err');S();return}}
-const el=bubble(`▸ berpikir lewat otak bebas (tanpa kunci)...`,'ai');
-const j=await otakBebas(v);
+const el=bubble(`▸ berpikir lewat otak bebas 1/5 (Pollinations GET)...`,'ai');
+const j=await otakBebas(v,function(s){el.textContent=s;chat.scrollTop=chat.scrollHeight});
 const fin=j?j:pesanLokal(v);
 el.textContent=fin;el.className='msg '+(j?'ai':'ai err');
 ingat(v,fin,j?'ai':'ai err');S();return}
@@ -565,5 +616,3 @@ document.body.insertBefore(d,document.getElementById('input-bar'));
 },1500);
 </script>
 </body></html>
-
-  
