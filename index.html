@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>QAI v6.4 KEMBAR</title>
@@ -22,12 +22,13 @@ align-self:stretch;max-width:96%;margin:2px 14px}
 .msg.ai.err{border-color:#f59e0b;color:#fbbf24}
 #input-bar{background:#050807;display:flex;padding:10px;
 padding-bottom:max(10px,env(safe-area-inset-bottom));
+margin-bottom:96px;
 border-top:1px solid var(--tdk);gap:8px;align-items:center;flex-shrink:0}
 #ps{color:var(--tfg);font-size:13px;font-weight:bold;white-space:nowrap}
 #q{flex:1;background:var(--tbg);border:1px solid var(--tdk);border-radius:4px;
 color:var(--tfg);padding:10px;font-family:inherit;font-size:16px;outline:none}
 #go{background:var(--tdk);border:1px solid var(--tbd);border-radius:4px;color:var(--tfg);
-font-weight:bold;padding:10px 16px;font-family:inherit;cursor:pointer}
+font-weight:bold;padding:10px 16px;min-width:52px;font-size:16px;font-family:inherit;cursor:pointer}
 .tip{color:var(--tbd);font-size:11px;text-align:center;padding:4px;flex-shrink:0}
 body[data-skin="qai"]{background:#0d1117}
 body[data-skin="qai"] #header{background:#161b22;color:var(--aksen);
@@ -53,9 +54,13 @@ Menghubungkan otak Gemini lewat kunci API milikmu sendiri (bukan token pinjaman)
 <div id="input-bar">
 <span id="ps">aku@qai:~$</span>
 <input id="q" autocomplete="off" autocapitalize="none" spellcheck="false"
-placeholder="tanya bebas, atau /perintah...">
+enterkeyhint="send" placeholder="tanya bebas, atau /perintah...">
 <button id="go">➤</button>
 </div>
+<script>
+window.__qaiErr=null;
+window.addEventListener('error',function(e){window.__qaiErr=e.message;});
+</script>
 <script>
 const chat=document.getElementById('chat'),q=document.getElementById('q');
 function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
@@ -76,7 +81,6 @@ document.getElementById('header').textContent=TITLE;
 function parentOf(t){return t.slice(0,t.lastIndexOf('/'))||'/'}
 function nameOf(t){return t.slice(t.lastIndexOf('/')+1)}
 function daftar(p,n){if(!DIRS[p])DIRS[p]=[];if(!DIRS[p].includes(n))DIRS[p].push(n)}
-/* ===== REPARASI TITIK-TETAP (konsisten penuh walau data rusak) ===== */
 (function reparasi(){
  if(typeof DIRS!=='object'||DIRS===null||!DIRS['/'])DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
  if(typeof FILES!=='object'||FILES===null)FILES={};
@@ -118,7 +122,6 @@ function dl(nama,isi){const b=new Blob([isi],{type:'text/plain'}),
  a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nama;
  document.body.appendChild(a);a.click();
  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
-/* ===== JEMBATAN RESMI GEMINI ===== */
 async function gemini(teks){
  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+
   GEMMODEL+':generateContent?key='+encodeURIComponent(GEMKEY),{
@@ -134,7 +137,6 @@ async function gemini(teks){
   j.candidates[0].content.parts[0].text;
  if(!t)throw new Error('balikan kosong/terblokir keamanan');
  return t}
-/* ===== NEURAL NETWORK ===== */
 function tok(s){return s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean)}
 function vec(t,V){const x=new Array(V.length+1).fill(0);
  tok(t).forEach(w=>{const i=V.indexOf(w);if(i>=0)x[i]=1});x[V.length]=1;return x}
@@ -161,7 +163,7 @@ function latihNet(ep){
  Y=NNDATA.map(d=>n.L.indexOf(d.l));
  let loss=0;
  for(let e=0;e<ep;e++){loss=0;
-  X.forEach((x,idx)=>{const t=Y[idx],{h,p}=fwd(n,x);
+  X.forEach((x,idx)=>{const t=Y[idx],f=fwd(n,x),h=f.h,p=f.p;
    loss+=-Math.log(Math.max(p[t],1e-9));
    const dz=p.map((v,k)=>v-(k===t?1:0));
    const dh=new Array(n.H).fill(0);
@@ -176,7 +178,6 @@ function latihNet(ep){
  (loss<0.05?' ✅ OTAK PAHAM!':loss<0.3?' 📖 mulai paham.':' 🐌 tambah contoh, /latih ulang')+
  '\nOtak: '+n.V.length+' kata, '+n.H+' neuron, label: '+n.L.join(', ')+
  '\nUji: /prediksi <kalimat>']}
-/* ===== SELF-TEST ===== */
 function selfTest(){
  const r=[];
  const t=(n,f)=>{try{r.push((f()?'✅ ':'❌ ')+n)}catch(e){r.push('❌ '+n+' ('+e.message+')')}};
@@ -193,8 +194,8 @@ function selfTest(){
    if(!DIRS[p]||DIRS[p].indexOf(nameOf(d))<0)ok=false}});
   return ok});
  t('Posisi terminal valid',()=>!!DIRS[cwd]);
- if(NND){t('Neural network (aktif)',()=>{const{p}=fwd(NND,vec(NNDATA.length?NNDATA[0].t:'aku',NND.V));
-  return Math.abs(p.reduce((a,b)=>a+b,0)-1)<1e-6})}
+ if(NND){t('Neural network (aktif)',()=>{const f=fwd(NND,vec(NNDATA.length?NNDATA[0].t:'aku',NND.V));
+  return Math.abs(f.p.reduce((a,b)=>a+b,0)-1)<1e-6})}
  else r.push('⏸ Neural: menunggu /ajar & /latih (bukan kesalahan)');
  t('Jembatan Gemini (fetch API)',()=>typeof fetch==='function');
  t('Router: tanya vs perintah vs hitung',()=>proses('siapa kamu')[0]==='ok'&&
@@ -203,7 +204,6 @@ function selfTest(){
  const gagal=r.filter(x=>x.charAt(0)==='❌').length;
  return['ok','🧪 SELF-TEST QAI v6.4\n\n'+r.join('\n')+'\n\n'+
  (gagal?'⚠ '+gagal+' komponen bermasalah — kirim screenshot baris ❌ ke Qwen.':'✅ SEMUA KOMPONEN SIAP — app layak dipakai harian. 👑')]}
-/* ===== PENGETAHUAN LOKAL ===== */
 const KB=[
 {k:['halo','hai','hi','assalamualaikum','selamat'],a:'Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — berjalan di antarmuka terminal hijau ini. Secara singkat, aku dirancang memahami dan menghasilkan teks layaknya manusia: menjawab pertanyaan, menjelaskan konsep rumit, membantu debugging kode, menerjemahkan, dan brainstorming.\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Apakah kita mau melakukan pengujian sesuatu? Coba: /uji'},
 {k:['siapa kamu','nama kamu','kamu siapa'],a:'Aku QAI v6.4 KEMBAR 👑\n\n• Visual: kembar identik applet terminal hijau di AI Studio\n• Otak online: Gemini (Google) lewat kunci API resmi milikmu\n• Otak offline: 35 topik + terminal + neural network + executor\n• Status: lulus audit 10 lapis, 27 bug ditutup\n\nBedaku dengan applet CTF: dia meminjam token sesi penonton; aku pakai kunci milikmu sendiri. Bersih, legal, aman.'},
@@ -270,7 +270,6 @@ const TECHMULTI=['ls','cd','touch','mkdir','rmdir','rm','cat','file','buat','tul
 'persen','password','neofetch','riwayat','bersih','clear','reset','skin','remix',
 'unduhcatatan','hapuscatatan'];
 const KATATANYA=['apa','siapa','kenapa','mengapa','bagaimana','berapa','kah','atau','yang','boleh'];
-/* ===== MESIN ===== */
 function proses(input){
 const t=input.trim();
 if(!t)return['err','Kosong — ketik /perintah untuk daftar kemampuan.'];
@@ -412,7 +411,7 @@ if(t.charAt(0)==='/'){
  case'latih':return latihNet(Math.max(10,Math.min(1000,parseInt(arg)||300)));
  case'prediksi':case'tebak':{if(!NND)return['err','Belum dilatih: /ajar positif aku senang → /ajar negatif aku benci → /latih → /prediksi'];
   if(!arg)return['err','Pakai: /prediksi <kalimat>'];
-  const{p}=fwd(NND,vec(arg,NND.V));let b=0;
+  const f=fwd(NND,vec(arg,NND.V)),p=f.p;let b=0;
   p.forEach((v,i)=>{if(v>p[b])b=i});
   let h='🧠 Prediksi: "'+NND.L[b]+'" — keyakinan '+(p[b]*100).toFixed(1)+'%\n';
   NND.L.forEach((l,i)=>{h+='  • '+l+': '+(p[i]*100).toFixed(1)+'%\n'});
@@ -426,7 +425,6 @@ if(t.charAt(0)==='/'){
  }
  return['err','Perintah tidak dikenal: /'+cmd+' — daftar lengkap: /perintah'];
 }
-/* ===== TANPA SLASH: rute cerdas ===== */
 if(/^[\d\s+\-*/().^,]+$/.test(t)&&/[\d)]\s*[-+*/^]\s*[\d(]/.test(t)){
  const h=calc(t);if(h!==null)return['ok','= '+h]}
 const low2=t.toLowerCase();
@@ -456,7 +454,6 @@ if(best&&bs>=4)return['ok',best.a];
 const topik=kata.length?kata[kata.length-1]:t;
 return['ok','Kuproses: "'+topik+'" 🧠\n\nTopik ini belum ada di perpustakaan lokalku.'+(GEMKEY?'\nSaat online, mode auto mengirimnya ke Gemini otomatis.':'\nPasang /kunci AIza... maka pertanyaan bebas kujawab lewat otak Gemini resmi — persis seperti kembaranku di Studio.')+'\n\nPerintah lengkap: /perintah 👑'];
 }
-/* ===== UI ===== */
 function bubble(txt,cls){const d=document.createElement('div');
  d.className='msg '+cls;
  const pref=(cls.indexOf('user')>=0&&document.body.dataset.skin==='kembar')?'aku@qai:~$ ':'';
@@ -482,21 +479,36 @@ function kirim(){const v=q.value.trim();if(!v)return;
     if(MODE==='online'){
      el.textContent='⚠ Gemini gagal: '+err.message+'\nPeriksa: /kunci • /model • kuota gratis • koneksi.';
      el.className='msg ai err';ingat(v,el.textContent,'ai err');S();return}
-    const[st,j2]=proses(v);
-    el.textContent='⚠ Gemini tak terjangkau ('+err.message+') — otak lokal mengambil alih:\n\n'+j2;
-    el.className='msg '+(st==='err'?'ai err':'ai');
-    ingat(v,el.textContent,'ai '+st);S();return}
+    const r2=proses(v);
+    el.textContent='⚠ Gemini tak terjangkau ('+err.message+') — otak lokal mengambil alih:\n\n'+r2[1];
+    el.className='msg '+(r2[0]==='err'?'ai err':'ai');
+    ingat(v,el.textContent,'ai '+r2[0]);S();return}
   }
-  const[st,j]=proses(v);
-  if(st!=='none'){const c=st==='err'?'ai err':'ai';
-   bubble(j,c);ingat(v,j,c)}
+  const r3=proses(v);
+  if(r3[0]!=='none'){const c=r3[0]==='err'?'ai err':'ai';
+   bubble(r3[1],c);ingat(v,r3[1],c)}
   S();
  },150)}
 q.addEventListener('focus',()=>setTimeout(()=>{q.scrollIntoView({block:'nearest'})},350));
+document.getElementById('input-bar').addEventListener('click',e=>{
+ if(e.target.id!=='go')q.focus()});
 document.getElementById('go').addEventListener('click',kirim);
 q.addEventListener('keydown',e=>{if(e.key==='Enter')kirim()});
 try{const th=localStorage.getItem('qai4Tema');
  if(th){const c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[th];
   if(c){const rs=document.documentElement.style;
    rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c)}}}catch(e){}
-</script></body></html>
+window.__qaiOK=true;
+</script>
+<script>
+setTimeout(function(){
+ if(window.__qaiOK)return;
+ var msg=window.__qaiErr?('⚠ Error JS terdeteksi: '+window.__qaiErr+'\nKirim screenshot kotak ini ke Qwen — dia akan menunjuk barisnya.'):('⚠ Script utama tidak berjalan — kemungkinan salinan kode terpotong saat paste. Upload ulang file utuh.');
+ var d=document.createElement('div');
+ d.style.cssText='color:#fbbf24;background:#1c1006;border:1px solid #f59e0b;margin:8px 14px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace';
+ d.textContent=msg;
+ document.body.insertBefore(d,document.getElementById('input-bar'));
+},1500);
+</script>
+</body></html>
+
