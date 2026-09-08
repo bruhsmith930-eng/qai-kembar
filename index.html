@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>QAI v6.4 KEMBAR</title>
@@ -68,176 +68,200 @@ let SKIN=load('qai6Skin','kembar');
 if(SKIN!=='kembar'&&SKIN!=='qai')SKIN='kembar';
 document.body.dataset.skin=SKIN;
 const DIRS_DEF={'/':['home'],'/home':['aku'],'/home/aku':['tentang.txt']};
-const FILES_DEF={'/home/aku/tentang.txt':'QAI v6.4 KEMBAR — kembar visual applet Studio + otak Gemini resmi + mesin lokal lengkap. Lulus audit 10 lapis. 👑'};
+const FILES_DEF={'/home/aku/tentang.txt':`QAI v6.4 KEMBAR — kembar visual applet Studio + otak Gemini resmi + mesin lokal lengkap. Lulus audit 10 lapis. 👑`};
 let DIRS=load('qai4D',JSON.parse(JSON.stringify(DIRS_DEF)));
 let FILES=load('qai4F',JSON.parse(JSON.stringify(FILES_DEF)));
 let CAT=load('qai4C',[]),TODO=load('qai4T',[]),NNDATA=load('qai4ND',[]),
-    NND=load('qai4NM',null),riw=load('qai4R',[]),histCmd=load('qai4H',[]),
-    cwd=load('qai4W','/home/aku');
+NND=load('qai4NM',null),riw=load('qai4R',[]),histCmd=load('qai4H',[]),
+cwd=load('qai4W','/home/aku');
 let GEMKEY=load('qai5K',''),MODE=load('qai5M','auto'),
-    GEMMODEL=load('qai6Model','gemini-2.5-flash'),
-    TITLE=load('qai6Title','QAI KEMBAR — AI Browser Agent 👑');
+GEMMODEL=load('qai6Model','gemini-2.5-flash'),
+TITLE=load('qai6Title','QAI KEMBAR — AI Browser Agent 👑');
 document.getElementById('header').textContent=TITLE;
 function parentOf(t){return t.slice(0,t.lastIndexOf('/'))||'/'}
 function nameOf(t){return t.slice(t.lastIndexOf('/')+1)}
-function daftar(p,n){if(!DIRS[p])DIRS[p]=[];if(!DIRS[p].includes(n))DIRS[p].push(n)}
+function daftar(p,n){if(!DIRS[p])DIRS[p]=[];if(DIRS[p].indexOf(n)<0)DIRS[p].push(n)}
 (function reparasi(){
- if(typeof DIRS!=='object'||DIRS===null||!DIRS['/'])DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
- if(typeof FILES!=='object'||FILES===null)FILES={};
- if(!DIRS['/home'])DIRS['/home']=[];
- if(!DIRS['/home/aku'])DIRS['/home/aku']=[];
- if(!DIRS[cwd])cwd='/home/aku';
- let berubah=true,penjaga=0;
- while(berubah&&penjaga<50){berubah=false;penjaga++;
-  Object.keys(DIRS).forEach(d=>{if(d!=='/'){const p=parentOf(d),n=nameOf(d);
-   if(!DIRS[p]){DIRS[p]=[];berubah=true}
-   if(DIRS[p].indexOf(n)<0){DIRS[p].push(n);berubah=true}}});
-  Object.keys(FILES).forEach(f=>{const p=parentOf(f),n=nameOf(f);
-   if(!DIRS[p]){DIRS[p]=[];berubah=true}
-   if(DIRS[p].indexOf(n)<0){DIRS[p].push(n);berubah=true}})}
- try{localStorage.setItem('qai4D',JSON.stringify(DIRS));
-  localStorage.setItem('qai4F',JSON.stringify(FILES));
-  localStorage.setItem('qai4W',JSON.stringify(cwd))}catch(e){}
+if(typeof DIRS!=='object'||DIRS===null||!DIRS['/'])DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
+if(typeof FILES!=='object'||FILES===null)FILES={};
+if(!DIRS['/home'])DIRS['/home']=[];
+if(!DIRS['/home/aku'])DIRS['/home/aku']=[];
+if(!DIRS[cwd])cwd='/home/aku';
+let berubah=true,penjaga=0;
+while(berubah&&penjaga<50){berubah=false;penjaga++;
+Object.keys(DIRS).forEach(function(d){if(d!=='/'){var p=parentOf(d),n=nameOf(d);
+if(!DIRS[p]){DIRS[p]=[];berubah=true}
+if(DIRS[p].indexOf(n)<0){DIRS[p].push(n);berubah=true}}});
+Object.keys(FILES).forEach(function(f){var p=parentOf(f),n=nameOf(f);
+if(!DIRS[p]){DIRS[p]=[];berubah=true}
+if(DIRS[p].indexOf(n)<0){DIRS[p].push(n);berubah=true}})}
+try{localStorage.setItem('qai4D',JSON.stringify(DIRS));
+localStorage.setItem('qai4F',JSON.stringify(FILES));
+localStorage.setItem('qai4W',JSON.stringify(cwd))}catch(e){}
 })();
 function S(){try{
- localStorage.setItem('qai4D',JSON.stringify(DIRS));
- localStorage.setItem('qai4F',JSON.stringify(FILES));
- localStorage.setItem('qai4C',JSON.stringify(CAT));
- localStorage.setItem('qai4T',JSON.stringify(TODO));
- localStorage.setItem('qai4ND',JSON.stringify(NNDATA));
- localStorage.setItem('qai4NM',JSON.stringify(NND));
- localStorage.setItem('qai4R',JSON.stringify(riw.slice(-80)));
- localStorage.setItem('qai4H',JSON.stringify(histCmd.slice(-50)));
- localStorage.setItem('qai4W',JSON.stringify(cwd));
- localStorage.setItem('qai5K',JSON.stringify(GEMKEY));
- localStorage.setItem('qai5M',JSON.stringify(MODE));}catch(e){}}
-function path(a){return a.startsWith('/')?a:(cwd==='/'?'':cwd)+'/'+a}
-function calc(e){e=e.replace(/,/g,'.');
- if(!/^[0-9\s+\-*/().^]+$/.test(e))return null;
- try{const v=Function('"use strict";return('+e.replace(/\^/g,'**')+')')();
- return typeof v==='number'&&isFinite(v)?Math.round(v*1e10)/1e10:null}catch(x){return null}}
-function persen(a,b){return(parseFloat(a.replace(',','.'))*parseFloat(b.replace(',','.'))/100).toLocaleString('id-ID')}
-function waktuStr(){return '🕐 '+new Date().toLocaleString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+localStorage.setItem('qai4D',JSON.stringify(DIRS));
+localStorage.setItem('qai4F',JSON.stringify(FILES));
+localStorage.setItem('qai4C',JSON.stringify(CAT));
+localStorage.setItem('qai4T',JSON.stringify(TODO));
+localStorage.setItem('qai4ND',JSON.stringify(NNDATA));
+localStorage.setItem('qai4NM',JSON.stringify(NND));
+localStorage.setItem('qai4R',JSON.stringify(riw.slice(-80)));
+localStorage.setItem('qai4H',JSON.stringify(histCmd.slice(-50)));
+localStorage.setItem('qai4W',JSON.stringify(cwd));
+localStorage.setItem('qai5K',JSON.stringify(GEMKEY));
+localStorage.setItem('qai5M',JSON.stringify(MODE));}catch(e){}}
+function path(a){return a.charAt(0)==='/'?a:(cwd==='/'?'':cwd)+'/'+a}
+function hurufSpasi(s){let o='';for(let i=0;i<s.length;i++){var c=s.charAt(i).toLowerCase();
+if((c>='a'&&c<='z')||(c>='0'&&c<='9')||c===' ')o+=c;else o+=' ';}return o}
+function buangTanda(s){let o='';for(let i=0;i<s.length;i++){var c=s.charAt(i).toLowerCase();
+if((c>='a'&&c<='z')||(c>='0'&&c<='9')||c===' ')o+=c;}return o}
+function tok(s){return hurufSpasi(s).split(' ').filter(function(w){return w!==''})}
+function angkaTok(w){if(w==='')return false;let d=false;
+for(let i=0;i<w.length;i++){var c=w.charAt(i);
+if(c>='0'&&c<='9')d=true;
+else if(c!=='.'&&c!==',')return false;}
+return d}
+function adaAngka(s){for(let i=0;i<s.length;i++){var c=s.charAt(i);if(c>='0'&&c<='9')return true}return false}
+function adaOp(s){const op='+-*/^';
+for(let i=1;i<s.length-1;i++){var c=s.charAt(i);
+if(op.indexOf(c)>=0){var sb='',sd='';
+for(let j=i-1;j>=0;j--){var ch=s.charAt(j);if(ch!==' '){sb=ch;break}}
+for(let j=i+1;j<s.length;j++){var ch2=s.charAt(j);if(ch2!==' '){sd=ch2;break}}
+if('0123456789)'.indexOf(sb)>=0&&'0123456789('.indexOf(sd)>=0)return true}}
+return false}
+function calc(e){e=e.split(',').join('.');
+const OK='0123456789 +-*/().^';
+for(let i=0;i<e.length;i++){if(OK.indexOf(e.charAt(i))<0)return null}
+try{const v=Function(`"use strict";return(`+e.split('^').join('**')+`)`)();
+return typeof v==='number'&&isFinite(v)?Math.round(v*1e10)/1e10:null}catch(x){return null}}
+function duaAngka(s){const t2=s.split(' ').filter(function(w){return w!==''&&w!=='%'});
+const nums=[];t2.forEach(function(w){var c=w.split('%').join('');if(angkaTok(c))nums.push(c)});
+if(nums.length===2)return nums;return null}
+function persen(a,b){return(parseFloat(a.split(',').join('.'))*parseFloat(b.split(',').join('.'))/100).toLocaleString('id-ID')}
+function waktuStr(){return `🕐 `+new Date().toLocaleString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function pecah(s){const i=s.indexOf(' ');if(i<0)return null;return[s.slice(0,i),s.slice(i+1).trim()]}
+const FRASA_WAKTU=['jam berapa','berapa jam','tanggal berapa','hari apa','waktu sekarang','jam sekarang'];
+function adaFrasa(s){for(let i=0;i<FRASA_WAKTU.length;i++){if(s.indexOf(FRASA_WAKTU[i])>=0)return true}return false}
 function dl(nama,isi){const b=new Blob([isi],{type:'text/plain'}),
- a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nama;
- document.body.appendChild(a);a.click();
- setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nama;
+document.body.appendChild(a);a.click();
+setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
 async function gemini(teks){
- const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+
-  GEMMODEL+':generateContent?key='+encodeURIComponent(GEMKEY),{
-  method:'POST',headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({
-   systemInstruction:{parts:[{text:'Kamu asisten AI dalam antarmuka terminal hijau. Jawab selalu bahasa Indonesia, hangat dan terstruktur (pakai poin bila perlu), jujur, dan akhiri sapaan pertama dengan menawarkan pengujian sesuatu.'}]},
-   contents:[{parts:[{text:teks}]}]})});
- if(!r.ok)throw new Error('HTTP '+r.status+(r.status===400||r.status===403?' — cek /kunci':r.status===404?' — model berubah: /model nama-baru':''));
- const j=await r.json();
- const t=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&
-  j.candidates[0].content.parts&&
-  j.candidates[0].content.parts[0]&&
-  j.candidates[0].content.parts[0].text;
- if(!t)throw new Error('balikan kosong/terblokir keamanan');
- return t}
-function tok(s){return s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean)}
+const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+
+GEMMODEL+':generateContent?key='+encodeURIComponent(GEMKEY),{
+method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+systemInstruction:{parts:[{text:`Kamu asisten AI dalam antarmuka terminal hijau. Jawab selalu bahasa Indonesia, hangat dan terstruktur (pakai poin bila perlu), jujur, dan akhiri sapaan pertama dengan menawarkan pengujian sesuatu.`}]},
+contents:[{parts:[{text:teks}]}]})});
+if(!r.ok)throw new Error('HTTP '+r.status+(r.status===400||r.status===403?` — cek /kunci`:r.status===404?` — model berubah: /model nama-baru`:''));
+const j=await r.json();
+const t=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&
+j.candidates[0].content.parts&&
+j.candidates[0].content.parts[0]&&
+j.candidates[0].content.parts[0].text;
+if(!t)throw new Error(`balikan kosong/terblokir keamanan`);
+return t}
 function vec(t,V){const x=new Array(V.length+1).fill(0);
- tok(t).forEach(w=>{const i=V.indexOf(w);if(i>=0)x[i]=1});x[V.length]=1;return x}
-function buildNet(){const V=[...new Set(NNDATA.flatMap(d=>tok(d.t)))],
- L=[...new Set(NNDATA.map(d=>d.l))],H=Math.min(16,Math.max(6,V.length)),
- r=()=>Math.random()*2-1;
- return{V,L,H,W1:Array.from({length:V.length+1},()=>Array.from({length:H},r)),
- b1:new Array(H).fill(0),
- W2:Array.from({length:H},()=>Array.from({length:L},r)),
- b2:new Array(L).fill(0)}}
+tok(t).forEach(function(w){const i=V.indexOf(w);if(i>=0)x[i]=1});x[V.length]=1;return x}
+function buildNet(){const V=[...new Set(NNDATA.flatMap(function(d){return tok(d.t)}))],
+L=[...new Set(NNDATA.map(function(d){return d.l}))],H=Math.min(16,Math.max(6,V.length)),
+r=function(){return Math.random()*2-1};
+return{V:L.length?V:[],L:L,H:H,W1:Array.from({length:V.length+1},function(){return Array.from({length:H},r)}),
+b1:new Array(H).fill(0),
+W2:Array.from({length:H},function(){return Array.from({length:L},r)}),
+b2:new Array(L).fill(0)}}
 function fwd(n,x){const h=[];
- for(let j=0;j<n.H;j++){let s=n.b1[j];
-  for(let i=0;i<x.length;i++)s+=x[i]*n.W1[i][j];h[j]=Math.tanh(s)}
- const z=new Array(n.L.length).fill(0);
- for(let k=0;k<n.L.length;k++){let s=n.b2[k];
-  for(let j=0;j<n.H;j++)s+=h[j]*n.W2[j][k];z[k]=s}
- const m=Math.max(...z),p=z.map(v=>Math.exp(v-m)),
- tt=p.reduce((a,b)=>a+b,0);return{h,p:p.map(v=>v/tt)}}
+for(let j=0;j<n.H;j++){let s=n.b1[j];
+for(let i=0;i<x.length;i++)s+=x[i]*n.W1[i][j];h[j]=Math.tanh(s)}
+const z=new Array(n.L.length).fill(0);
+for(let k=0;k<n.L.length;k++){let s=n.b2[k];
+for(let j=0;j<n.H;j++)s+=h[j]*n.W2[j][k];z[k]=s}
+const m=Math.max(...z),p=z.map(function(v){return Math.exp(v-m)}),
+tt=p.reduce(function(a,b){return a+b},0);return{h:h,p:p.map(function(v){return v/tt})}}
 function latihNet(ep){
- if(NNDATA.length<2)return['err','Butuh minimal 2 contoh. Pakai: /ajar positif aku suka ini'];
- const labels=[...new Set(NNDATA.map(d=>d.l))];
- if(labels.length<2)return['err','Butuh minimal 2 LABEL berbeda agar otak bisa membedakan'];
- const n=buildNet(),lr=0.15,X=NNDATA.map(d=>vec(d.t,n.V)),
- Y=NNDATA.map(d=>n.L.indexOf(d.l));
- let loss=0;
- for(let e=0;e<ep;e++){loss=0;
-  X.forEach((x,idx)=>{const t=Y[idx],f=fwd(n,x),h=f.h,p=f.p;
-   loss+=-Math.log(Math.max(p[t],1e-9));
-   const dz=p.map((v,k)=>v-(k===t?1:0));
-   const dh=new Array(n.H).fill(0);
-   for(let j=0;j<n.H;j++)for(let k=0;k<n.L.length;k++)dh[j]+=dz[k]*n.W2[j][k];
-   for(let k=0;k<n.L.length;k++){n.b2[k]-=lr*dz[k];
-    for(let j=0;j<n.H;j++)n.W2[j][k]-=lr*h[j]*dz[k]}
-   for(let j=0;j<n.H;j++){const g=dh[j]*(1-h[j]*h[j]);n.b1[j]-=lr*g;
-    for(let i=0;i<x.length;i++)n.W1[i][j]-=lr*x[i]*g}});
-  loss/=X.length}
- NND=n;S();
- return['ok','🏋️ Training selesai — '+ep+' epoch. Loss akhir: '+loss.toFixed(4)+
- (loss<0.05?' ✅ OTAK PAHAM!':loss<0.3?' 📖 mulai paham.':' 🐌 tambah contoh, /latih ulang')+
- '\nOtak: '+n.V.length+' kata, '+n.H+' neuron, label: '+n.L.join(', ')+
- '\nUji: /prediksi <kalimat>']}
+if(NNDATA.length<2)return['err',`Butuh minimal 2 contoh. Pakai: /ajar positif aku suka ini`];
+const labels=[...new Set(NNDATA.map(function(d){return d.l}))];
+if(labels.length<2)return['err',`Butuh minimal 2 LABEL berbeda agar otak bisa membedakan`];
+const n=buildNet(),lr=0.15,X=NNDATA.map(function(d){return vec(d.t,n.V)}),
+Y=NNDATA.map(function(d){return n.L.indexOf(d.l)});
+let loss=0;
+for(let e=0;e<ep;e++){loss=0;
+X.forEach(function(x,idx){const t=Y[idx],f=fwd(n,x),h=f.h,p=f.p;
+loss+=-Math.log(Math.max(p[t],1e-9));
+const dz=p.map(function(v,k){return v-(k===t?1:0)});
+const dh=new Array(n.H).fill(0);
+for(let j=0;j<n.H;j++)for(let k=0;k<n.L.length;k++)dh[j]+=dz[k]*n.W2[j][k];
+for(let k=0;k<n.L.length;k++){n.b2[k]-=lr*dz[k];
+for(let j=0;j<n.H;j++)n.W2[j][k]-=lr*h[j]*dz[k]}
+for(let j=0;j<n.H;j++){const g=dh[j]*(1-h[j]*h[j]);n.b1[j]-=lr*g;
+for(let i=0;i<x.length;i++)n.W1[i][j]-=lr*x[i]*g}});
+loss/=X.length}
+NND=n;S();
+return['ok',`🏋️ Training selesai — `+ep+` epoch. Loss akhir: `+loss.toFixed(4)+
+(loss<0.05?` ✅ OTAK PAHAM!`:loss<0.3?` 📖 mulai paham.`:` 🐌 tambah contoh, /latih ulang`)+
+`\nOtak: `+n.V.length+` kata, `+n.H+` neuron, label: `+n.L.join(', ')+
+`\nUji: /prediksi <kalimat>`]}
 function selfTest(){
- const r=[];
- const t=(n,f)=>{try{r.push((f()?'✅ ':'❌ ')+n)}catch(e){r.push('❌ '+n+' ('+e.message+')')}};
- t('Penyimpanan permanen (localStorage)',()=>{localStorage.setItem('qaiT','1');
-  const v=localStorage.getItem('qaiT')==='1';localStorage.removeItem('qaiT');return v});
- t('Crypto asli (password/acak)',()=>{const a=new Uint32Array(4);
-  crypto.getRandomValues(a);return a.some(x=>x>0)});
- t('Mesin unduhan (Blob+URL)',()=>typeof Blob==='function'&&typeof URL.createObjectURL==='function');
- t('Kalkulator',()=>calc('2+2')===4&&calc('12*8')===96&&calc('(2+3)^2')===25&&calc('1/0')===null);
- t('Filesystem konsisten penuh',()=>{let ok=!!(DIRS['/']&&DIRS['/home']&&DIRS['/home/aku']);
-  Object.keys(FILES).forEach(f=>{const p=parentOf(f);
-   if(!DIRS[p]||DIRS[p].indexOf(nameOf(f))<0)ok=false});
-  Object.keys(DIRS).forEach(d=>{if(d!=='/'){const p=parentOf(d);
-   if(!DIRS[p]||DIRS[p].indexOf(nameOf(d))<0)ok=false}});
-  return ok});
- t('Posisi terminal valid',()=>!!DIRS[cwd]);
- if(NND){t('Neural network (aktif)',()=>{const f=fwd(NND,vec(NNDATA.length?NNDATA[0].t:'aku',NND.V));
-  return Math.abs(f.p.reduce((a,b)=>a+b,0)-1)<1e-6})}
- else r.push('⏸ Neural: menunggu /ajar & /latih (bukan kesalahan)');
- t('Jembatan Gemini (fetch API)',()=>typeof fetch==='function');
- t('Router: tanya vs perintah vs hitung',()=>proses('siapa kamu')[0]==='ok'&&
-  proses('hitung 2+2')[0]==='ok'&&proses('mkdir x')[0]==='err');
- t('Renderer textContent (anti-XSS, by design)',()=>true);
- const gagal=r.filter(x=>x.charAt(0)==='❌').length;
- return['ok','🧪 SELF-TEST QAI v6.4\n\n'+r.join('\n')+'\n\n'+
- (gagal?'⚠ '+gagal+' komponen bermasalah — kirim screenshot baris ❌ ke Qwen.':'✅ SEMUA KOMPONEN SIAP — app layak dipakai harian. 👑')]}
+const r=[];
+const t=function(n,f){try{r.push((f()?`✅ `:`❌ `)+n)}catch(e){r.push(`❌ `+n+` (`+e.message+`)`)}};
+t(`Penyimpanan permanen (localStorage)`,function(){localStorage.setItem('qaiT','1');
+const v=localStorage.getItem('qaiT')==='1';localStorage.removeItem('qaiT');return v});
+t(`Crypto asli (password/acak)`,function(){const a=new Uint32Array(4);
+crypto.getRandomValues(a);return a.some(function(x){return x>0})});
+t(`Mesin unduhan (Blob+URL)`,function(){return typeof Blob==='function'&&typeof URL.createObjectURL==='function'});
+t(`Kalkulator`,function(){return calc('2+2')===4&&calc('12*8')===96&&calc('(2+3)^2')===25&&calc('1/0')===null});
+t(`Filesystem konsisten penuh`,function(){let ok=!!(DIRS['/']&&DIRS['/home']&&DIRS['/home/aku']);
+Object.keys(FILES).forEach(function(f){const p=parentOf(f);
+if(!DIRS[p]||DIRS[p].indexOf(nameOf(f))<0)ok=false});
+Object.keys(DIRS).forEach(function(d){if(d!=='/'){const p=parentOf(d);
+if(!DIRS[p]||DIRS[p].indexOf(nameOf(d))<0)ok=false}});
+return ok});
+t(`Posisi terminal valid`,function(){return !!DIRS[cwd]});
+if(NND){t(`Neural network (aktif)`,function(){const f=fwd(NND,vec(NNDATA.length?NNDATA[0].t:'aku',NND.V));
+return Math.abs(f.p.reduce(function(a,b){return a+b},0)-1)<1e-6})}
+else r.push(`⏸ Neural: menunggu /ajar & /latih (bukan kesalahan)`);
+t(`Jembatan Gemini (fetch API)`,function(){return typeof fetch==='function'});
+t(`Router: tanya vs perintah vs hitung`,function(){return proses('siapa kamu')[0]==='ok'&&
+proses('hitung 2+2')[0]==='ok'&&proses('mkdir x')[0]==='err'});
+t(`Renderer textContent (anti-XSS, by design)`,function(){return true});
+const gagal=r.filter(function(x){return x.charAt(0)==='❌'}).length;
+return['ok',`🧪 SELF-TEST QAI v6.4\n\n`+r.join('\n')+`\n\n`+
+(gagal?`⚠ `+gagal+` komponen bermasalah — kirim screenshot baris ❌ ke Qwen.`:`✅ SEMUA KOMPONEN SIAP — app layak dipakai harian. 👑`)]}
 const KB=[
-{k:['halo','hai','hi','assalamualaikum','selamat'],a:'Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — berjalan di antarmuka terminal hijau ini. Secara singkat, aku dirancang memahami dan menghasilkan teks layaknya manusia: menjawab pertanyaan, menjelaskan konsep rumit, membantu debugging kode, menerjemahkan, dan brainstorming.\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Apakah kita mau melakukan pengujian sesuatu? Coba: /uji'},
-{k:['siapa kamu','nama kamu','kamu siapa'],a:'Aku QAI v6.4 KEMBAR 👑\n\n• Visual: kembar identik applet terminal hijau di AI Studio\n• Otak online: Gemini (Google) lewat kunci API resmi milikmu\n• Otak offline: 35 topik + terminal + neural network + executor\n• Status: lulus audit 10 lapis, 27 bug ditutup\n\nBedaku dengan applet CTF: dia meminjam token sesi penonton; aku pakai kunci milikmu sendiri. Bersih, legal, aman.'},
-{k:['gemini','google'],a:'🌐 Gemini = model bahasa besar milik Google — otak yang sama dengan yang menyapa di layar itu.\n\nGoogle memberikannya GRATIS ke developer lewat API key pribadi. Pasang: /kunci AIza... — maka pertanyaan bebas kujawab memakai otak Gemini, dengan tubuh terminal hijau kita. Ganti model kapan pun: /model'},
-{k:['token','ctf','applet','bridge'],a:'🔐 Soal "Applet Bridge" di misi CTF itu:\n\nDia mengambil token sesi AI Studio dari parent window — trik latihan keamanan. Pelajaran berharganya: jangan bangun aplikasi di atas token pinjaman, dan jangan pernah memakai token orang lain (pembajakan akun, pidana).\n\nJalur kembaranku: kunci API pribadi gratis resmi — hasil identik, tidur nyenyak. Di dalam Studio sendiri, akses Gemini disediakan platform secara resmi — tanpa trik apa pun.'},
-{k:['remix','studio','aistudio'],a:'🛠 Cara applet semacam itu lahir — ketik /remix untuk panduan lengkap langkah demi langkah (prompt builder + system prompt siap tempel). Tombol Remix applet mana pun = fork resmi untuk membaca kodennya: jalan sah "copy semua data AI ini".'},
-{k:['api'],a:'📖 API = perantara dua program: request → server → response JSON. Pintu resmi Gemini: generativelanguage.googleapis.com — lewat pintu itu aku masuk memakai kunci milikmu.'},
-{k:['html','css','javascript','js'],a:'📖 Trio web: HTML kerangka, CSS tampilan, JS otak. Terminal hijau ini = HTML+CSS murni; seluruh mesin di bawahnya = JS. Satu file, nol dependensi.'},
-{k:['python'],a:'🐍 Python = raja AI & data. GPU gratis dari HP: Google Colab. Pustaka: pandas, NumPy, TensorFlow, requests.'},
-{k:['linux','termux'],a:'🐧 Linux = raja server; perintah intinya hidup di aku: /ls /cd /cat /mkdir /rm. Termux = Linux sungguhan di Android.'},
-{k:['git','github'],a:'📖 Git = mesin waktu kode: init → add → commit → push. GitHub = rumah + portfolio yang dilihat recruiter sebelum ijazah.'},
-{k:['database','sql'],a:'📖 SQL = tabel & relasi (SELECT/JOIN); NoSQL = dokumen fleksibel. Aturan emas: prepared statement selalu.'},
-{k:['keamanan','hacker','siber'],a:'🔐 CIA: Confidentiality, Integrity, Availability. Karier sah: bug bounty, pentester, SOC. Latihan: TryHackMe, PortSwigger. Token orang bukan mainan.'},
-{k:['phishing','penipuan'],a:'🛡️ Cek URL teliti, jangan klik link asing, bank tak pernah minta password, 2FA wajib, ragu → buka situs manual.'},
-{k:['password'],a:'🔑 Passphrase 4 kata + angka + simbol; Bitwarden untuk menyimpan; 2FA berlapis. Buatan crypto asli: /password 20'},
-{k:['jaringan','internet','dns'],a:'🌐 Data → paket → banyak rute → disusun ulang. DNS buku telepon (1.1.1.1), port 80/443/22, TCP andal UDP cepat.'},
-{k:['ai','kecerdasan buatan','machine learning'],a:'🤖 Rantai AI: data → vektor → model → backpropagation → deploy. Semua lapisan ada di tanganmu: neural mini (/ajar /latih /prediksi) + otak raksasa Gemini (/kunci). Teori selesai, praktik jalan.'},
-{k:['neural','backpropagation'],a:'🧠 Neuron = angka×bobot+bias → aktivasi. Forward = tebak, loss = ukuran salah, backprop = koreksi mundur, epoch = putaran. /latih melakukan persis ini.'},
-{k:['llm','gpt','chatgpt'],a:'🤖 LLM = penebak kata berikutnya skala triliunan; Transformer (2017) fondasinya. Dengan /kunci, aku meminjam otak LLM resmi milikmu sendiri — kembar dengan yang menyapa di layar itu.'},
-{k:['cloud','hosting'],a:'☁️ Gratis: GitHub Pages & Netlify (web), Colab (Python+GPU), Oracle Cloud (VPS), Cloudflare (DNS/CDN).'},
-{k:['karier','freelance','kerja'],a:'💼 4 jalur: frontend, backend, keamanan, data/AI. Portofolio > sertifikat. Senjatamu: 6 proyek nyata — publish ke GitHub malam ini.'},
-{k:['belajar'],a:'📚 1 jam/hari konsisten > maraton; praktik > tutorial; Feynman: jelaskan ulang. Sumber elit gratis: CS50, freeCodeCamp, MDN.'},
-{k:['motivasi','sedih','menyerah','malas'],a:'🔥 Loss tinggi di epoch awal = tanda sedang belajar, bukan bodoh. Kau sudah lewat 6 versi AI dari HP. Bandingkan dirimu hanya dengan dirimu kemarin. 👑'},
-{k:['bug','error'],a:'🐛 Baca error → persempit → F12 Console → ubah satu hal → uji. Buntu? Istirahat. Bug termahal: Ariane 5, $370 juta, satu konversi angka.'},
-{k:['website','github pages'],a:'🌍 Live 1 jam: HTML → repo username.github.io → Settings → Pages. Kilat: netlify.com/drop.'},
-{k:['android','pwa'],a:'📱 PWA (Add to Home Screen) → Kodular → Flutter/React Native. Twitter Lite & Starbucks = PWA.'},
-{k:['game'],a:'🎮 Pong di canvas <100 baris → Phaser → Godot gratis → Unity. Semua developer mulai dari Pong.'},
-{k:['uang','bisnis'],a:'💰 Jasa web UMKM, karya digital, affiliate, konten edukasi perjalananmu. Masalah orang = peluangmu.'},
-{k:['kesehatan','tidur'],a:'💪 Tidur 7-8 jam (ilmu mengendap saat tidur), jalan 30 menit, air 2L, aturan 20-20-20.'},
-{k:['matematika','hitung'],a:'🔢 Aljabar (pola), kalkulus (gradient), statistika (ketidakpastian) = 3 pilar AI. Kalkulator: /hitung 125*8 — atau ketik langsung "hitung 125*8" tanpa slash, kuhitung juga.'},
-{k:['sejarah'],a:'📜 1936 Turing → 1956 "AI" lahir → 1986 backprop → 1991 Linux → 2012 deep learning → 2017 Transformer → 2022+ LLM. Kau ikut menulis babak ini.'},
-{k:['cinta','patah hati'],a:'💚 Hubungan sehat = komunikasi jujur + saling tumbuh. Sedih itu data, bukan kelemahan — salurkan jadi karya.'},
-{k:['mimpi','masa depan'],a:'🌟 Pecah: 1 tahun → 1 bulan → 1 minggu → hari ini. Buktimu: QTerm → QBrain → QAI → HYBRID → KEMBAR. Satu file hari ini.'},
-{k:['terima kasih','makasih'],a:'Sama-sama! 💚 Dua otak standby 24/7 di terminal hijaumu. Perintah berikutnya? 👑'}];
+{k:['halo','hai','hi','assalamualaikum','selamat'],a:`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — berjalan di antarmuka terminal hijau ini. Secara singkat, aku dirancang memahami dan menghasilkan teks layaknya manusia: menjawab pertanyaan, menjelaskan konsep rumit, membantu debugging kode, menerjemahkan, dan brainstorming.\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Apakah kita mau melakukan pengujian sesuatu? Coba: /uji`},
+{k:['siapa kamu','nama kamu','kamu siapa'],a:`Aku QAI v6.4 KEMBAR 👑\n\n• Visual: kembar identik applet terminal hijau di AI Studio\n• Otak online: Gemini (Google) lewat kunci API resmi milikmu\n• Otak offline: 35 topik + terminal + neural network + executor\n• Status: lulus audit 10 lapis, 27 bug ditutup\n\nBedaku dengan applet CTF: dia meminjam token sesi penonton; aku pakai kunci milikmu sendiri. Bersih, legal, aman.`},
+{k:['gemini','google'],a:`🌐 Gemini = model bahasa besar milik Google — otak yang sama dengan yang menyapa di layar itu.\n\nGoogle memberikannya GRATIS ke developer lewat API key pribadi. Pasang: /kunci AIza... — maka pertanyaan bebas kujawab memakai otak Gemini, dengan tubuh terminal hijau kita. Ganti model kapan pun: /model`},
+{k:['token','ctf','applet','bridge'],a:`🔐 Soal "Applet Bridge" di misi CTF itu:\n\nDia mengambil token sesi AI Studio dari parent window — trik latihan keamanan. Pelajaran berharganya: jangan bangun aplikasi di atas token pinjaman, dan jangan pernah memakai token orang lain (pembajakan akun, pidana).\n\nJalur kembaranku: kunci API pribadi gratis resmi — hasil identik, tidur nyenyak. Di dalam Studio sendiri, akses Gemini disediakan platform secara resmi — tanpa trik apa pun.`},
+{k:['remix','studio','aistudio'],a:`🛠 Cara applet semacam itu lahir — ketik /remix untuk panduan lengkap langkah demi langkah (prompt builder + system prompt siap tempel). Tombol Remix applet mana pun = fork resmi untuk membaca kodennya: jalan sah "copy semua data AI ini".`},
+{k:['api'],a:`📖 API = perantara dua program: request → server → response JSON. Pintu resmi Gemini: generativelanguage.googleapis.com — lewat pintu itu aku masuk memakai kunci milikmu.`},
+{k:['html','css','javascript','js'],a:`📖 Trio web: HTML kerangka, CSS tampilan, JS otak. Terminal hijau ini = HTML+CSS murni; seluruh mesin di bawahnya = JS. Satu file, nol dependensi.`},
+{k:['python'],a:`🐍 Python = raja AI & data. GPU gratis dari HP: Google Colab. Pustaka: pandas, NumPy, TensorFlow, requests.`},
+{k:['linux','termux'],a:`🐧 Linux = raja server; perintah intinya hidup di aku: /ls /cd /cat /mkdir /rm. Termux = Linux sungguhan di Android.`},
+{k:['git','github'],a:`📖 Git = mesin waktu kode: init → add → commit → push. GitHub = rumah + portfolio yang dilihat recruiter sebelum ijazah.`},
+{k:['database','sql'],a:`📖 SQL = tabel & relasi (SELECT/JOIN); NoSQL = dokumen fleksibel. Aturan emas: prepared statement selalu.`},
+{k:['keamanan','hacker','siber'],a:`🔐 CIA: Confidentiality, Integrity, Availability. Karier sah: bug bounty, pentester, SOC. Latihan: TryHackMe, PortSwigger. Token orang bukan mainan.`},
+{k:['phishing','penipuan'],a:`🛡️ Cek URL teliti, jangan klik link asing, bank tak pernah minta password, 2FA wajib, ragu → buka situs manual.`},
+{k:['password'],a:`🔑 Passphrase 4 kata + angka + simbol; Bitwarden untuk menyimpan; 2FA berlapis. Buatan crypto asli: /password 20`},
+{k:['jaringan','internet','dns'],a:`🌐 Data → paket → banyak rute → disusun ulang. DNS buku telepon (1.1.1.1), port 80/443/22, TCP andal UDP cepat.`},
+{k:['ai','kecerdasan buatan','machine learning'],a:`🤖 Rantai AI: data → vektor → model → backpropagation → deploy. Semua lapisan ada di tanganmu: neural mini (/ajar /latih /prediksi) + otak raksasa Gemini (/kunci). Teori selesai, praktik jalan.`},
+{k:['neural','backpropagation'],a:`🧠 Neuron = angka×bobot+bias → aktivasi. Forward = tebak, loss = ukuran salah, backprop = koreksi mundur, epoch = putaran. /latih melakukan persis ini.`},
+{k:['llm','gpt','chatgpt'],a:`🤖 LLM = penebak kata berikutnya skala triliunan; Transformer (2017) fondasinya. Dengan /kunci, aku meminjam otak LLM resmi milikmu sendiri — kembar dengan yang menyapa di layar itu.`},
+{k:['cloud','hosting'],a:`☁️ Gratis: GitHub Pages & Netlify (web), Colab (Python+GPU), Oracle Cloud (VPS), Cloudflare (DNS/CDN).`},
+{k:['karier','freelance','kerja'],a:`💼 4 jalur: frontend, backend, keamanan, data/AI. Portofolio > sertifikat. Senjatamu: 6 proyek nyata — publish ke GitHub malam ini.`},
+{k:['belajar'],a:`📚 1 jam/hari konsisten > maraton; praktik > tutorial; Feynman: jelaskan ulang. Sumber elit gratis: CS50, freeCodeCamp, MDN.`},
+{k:['motivasi','sedih','menyerah','malas'],a:`🔥 Loss tinggi di epoch awal = tanda sedang belajar, bukan bodoh. Kau sudah lewat 6 versi AI dari HP. Bandingkan dirimu hanya dengan dirimu kemarin. 👑`},
+{k:['bug','error'],a:`🐛 Baca error → persempit → F12 Console → ubah satu hal → uji. Buntu? Istirahat. Bug termahal: Ariane 5, $370 juta, satu konversi angka.`},
+{k:['website','github pages'],a:`🌍 Live 1 jam: HTML → repo username.github.io → Settings → Pages. Kilat: netlify.com/drop.`},
+{k:['android','pwa'],a:`📱 PWA (Add to Home Screen) → Kodular → Flutter/React Native. Twitter Lite & Starbucks = PWA.`},
+{k:['game'],a:`🎮 Pong di canvas <100 baris → Phaser → Godot gratis → Unity. Semua developer mulai dari Pong.`},
+{k:['uang','bisnis'],a:`💰 Jasa web UMKM, karya digital, affiliate, konten edukasi perjalananmu. Masalah orang = peluangmu.`},
+{k:['kesehatan','tidur'],a:`💪 Tidur 7-8 jam (ilmu mengendap saat tidur), jalan 30 menit, air 2L, aturan 20-20-20.`},
+{k:['matematika','hitung'],a:`🔢 Aljabar (pola), kalkulus (gradient), statistika (ketidakpastian) = 3 pilar AI. Kalkulator: /hitung 125*8 — atau ketik langsung "hitung 125*8" tanpa slash, kuhitung juga.`},
+{k:['sejarah'],a:`📜 1936 Turing → 1956 "AI" lahir → 1986 backprop → 1991 Linux → 2012 deep learning → 2017 Transformer → 2022+ LLM. Kau ikut menulis babak ini.`},
+{k:['cinta','patah hati'],a:`💚 Hubungan sehat = komunikasi jujur + saling tumbuh. Sedih itu data, bukan kelemahan — salurkan jadi karya.`},
+{k:['mimpi','masa depan'],a:`🌟 Pecah: 1 tahun → 1 bulan → 1 minggu → hari ini. Buktimu: QTerm → QBrain → QAI → HYBRID → KEMBAR. Satu file hari ini.`},
+{k:['terima kasih','makasih'],a:`Sama-sama! 💚 Dua otak standby 24/7 di terminal hijaumu. Perintah berikutnya? 👑`}];
 const HELP=`⚡ QAI v6.4 KEMBAR — SIAP PAKAI (lulus audit 10 lapis):
 
 🧪 VERIFIKASI: /uji → self-test komponen + perilaku
@@ -259,7 +283,7 @@ const HELP=`⚡ QAI v6.4 KEMBAR — SIAP PAKAI (lulus audit 10 lapis):
 💬 TANPA / pun kujawab langsung:
    "hitung 2+2" • "persen 15 dari 200000"
    "jam berapa sekarang" • tanya bebas apa saja 👑`;
-function neoStr(){return '     ▄▄▄▄▄▄▄\n    █ ████ █    aku@qai-kembar\n    █ ████ █    ─────────────────\n    █ ▀▀ █    UI    : terminal hijau (kembar Studio)\n    ▀▀▀▀▀▀▀     Otak 1: '+GEMMODEL+' via kunci '+(GEMKEY?'resmi ✓':'— belum')+'\n                Otak 2: lokal (offline selamanya)\n                Mode  : '+MODE+' | Kulit: '+document.body.dataset.skin+'\n                Audit : 10 lapis, 27 bug ditutup ✅\n                Status: milikmu 100% 👑'}
+function neoStr(){return `     ▄▄▄▄▄▄▄\n    █ ████ █    aku@qai-kembar\n    █ ████ █    ─────────────────\n    █ ▀▀ █    UI    : terminal hijau (kembar Studio)\n    ▀▀▀▀▀▀▀     Otak 1: `+GEMMODEL+` via kunci `+(GEMKEY?`resmi ✓`:`— belum`)+`\n                Otak 2: lokal (offline selamanya)\n                Mode  : `+MODE+` | Kulit: `+document.body.dataset.skin+`\n                Audit : 10 lapis, 27 bug ditutup ✅\n                Status: milikmu 100% 👑`}
 const ANYCMD=['ls','cd','pwd','touch','mkdir','rmdir','rm','cat','file','buat','unduh',
 'tulis','catatan','todo','selesai','hitung','persen','waktu','jam','tanggal','acak',
 'upper','lower','balik','hitungkar','neofetch','riwayat','bersih','clear','reset',
@@ -272,243 +296,242 @@ const TECHMULTI=['ls','cd','touch','mkdir','rmdir','rm','cat','file','buat','tul
 const KATATANYA=['apa','siapa','kenapa','mengapa','bagaimana','berapa','kah','atau','yang','boleh'];
 function proses(input){
 const t=input.trim();
-if(!t)return['err','Kosong — ketik /perintah untuk daftar kemampuan.'];
+if(!t)return['err',`Kosong — ketik /perintah untuk daftar kemampuan.`];
 if(t.charAt(0)==='/'){
- const low=t.toLowerCase();const sp=low.search(/\s/);
- let cmd=(sp<0?low:low.slice(0,sp)).slice(1);
- const arg=sp<0?'':t.slice(sp+1).trim();
- switch(cmd){
- case'perintah':case'help':case'bantuan':return['ok',HELP];
- case'uji':case'test':case'selftest':return selfTest();
- case'skin':{const s=arg.toLowerCase();
-  if(s!=='kembar'&&s!=='qai')return['err','Pilih: /skin kembar | /skin qai'];
-  document.body.dataset.skin=s;
-  try{localStorage.setItem('qai6Skin',JSON.stringify(s))}catch(e){}
-  return['ok','🎭 Kulit ganti: '+s.toUpperCase()+' (tersimpan permanen)']}
- case'nama':{if(!arg)return['ok','📛 Judul sekarang: '+TITLE+'\nGanti: /nama teks baru'];
-  TITLE=arg;document.getElementById('header').textContent=TITLE;
-  try{localStorage.setItem('qai6Title',JSON.stringify(TITLE))}catch(e){}
-  return['ok','📛 Judul header ganti: '+TITLE]}
- case'model':{if(!arg)return['ok','🧩 Model sekarang: '+GEMMODEL+'\nGanti: /model nama-model (daftar model gratis ada di AI Studio)'];
-  GEMMODEL=arg.trim();
-  try{localStorage.setItem('qai6Model',JSON.stringify(GEMMODEL))}catch(e){}
-  return['ok','🧩 Model Gemini ganti: '+GEMMODEL]}
- case'remix':return['ok','🛠 CARA ORANG MENCIPTAKAN APPLET SEMACAM INI (ikuti persis):\n\n1️⃣ Buka aistudio.google.com → menu "Build"\n2️⃣ Tempel prompt builder ini:\n"Buat aplikasi chat satu layar bergaya terminal: latar #050807, teks #4ade80 monospace, pesan AI dalam kotak border #22c55e, judul di tengah atas, dua baris misi hijau, input dengan prompt aku@qai:~$ . Semua jawaban memakai Gemini dan berbahasa Indonesia hangat terstruktur."\n3️⃣ Di panel Instruction, tempel system prompt:\n"Kamu asisten dalam antarmuka terminal hijau. Jawab selalu bahasa Indonesia, hangat dan terstruktur; akhiri sapaan pertama dengan menawarkan pengujian sesuatu."\n4️⃣ Uji di pratinjau → perbaiki via panel kode\n5️⃣ Publish → kau dapat URL /apps/... + tombol Remix PERSIS seperti yang kau lihat\n\nDi Studio, akses Gemini disediakan platform secara resmi — itulah bridge sah, tanpa trik token sesi.\nBonus: tombol Remix applet mana pun = fork resmi untuk membaca kodennya.'];
- case'kunci':{if(!arg)return['ok','🔑 Status kunci: '+(GEMKEY?'TERPASANG ('+GEMKEY.slice(0,8)+'...) — mode: '+MODE:'belum ada. Ambil gratis: aistudio.google.com → Get API key → /kunci AIza...')];
-  if(arg==='off'){GEMKEY='';S();return['ok','🔑 Kunci dilepas — 100% otak lokal.']}
-  if(arg.length<20)return['err','Kunci terlalu pendek. Salin utuh (diawali AIza...)'];
-  GEMKEY=arg.trim();S();
-  return['ok','🔑 Kunci terpasang, tersimpan hanya di perangkat ini.'+(GEMKEY.indexOf('AIza')!==0?'\n⚠ Biasanya kunci Google diawali "AIza" — cek lagi salinanmu.':'')+'\nMode: '+MODE+' — tanya bebas tanpa / saat online. 🌐']}
- case'mode':{const m=arg.toLowerCase();
-  if(m!=='auto'&&m!=='online'&&m!=='offline')return['err','Pilih: /mode auto | online | offline'];
-  MODE=m;S();return['ok','🎚 Mode: '+m.toUpperCase()+(m==='online'&&!GEMKEY?'\n⚠ Kunci belum dipasang — /kunci AIza...':'')]}
- case'hitung':case'calc':{if(!arg)return['err','Pakai: /hitung 12*8+5'];
-  const h=calc(arg);return h===null?['err','Format angka: /hitung 12*8+5']:['ok','= '+h]}
- case'persen':{const m=arg.match(/^([\d.,]+)\s*%?\s*(?:dari)?\s*([\d.,]+)$/);
-  if(!m)return['err','Pakai: /persen 15 dari 200000'];
-  return['ok','= '+persen(m[1],m[2])]}
- case'waktu':case'jam':case'tanggal':return['ok',waktuStr()];
- case'tulis':case'catat':{if(!arg)return['err','Pakai: /tulis <isi catatan>'];
-  CAT.push('['+new Date().toLocaleDateString('id-ID')+'] '+arg);S();
-  return['ok','✓ Catatan #'+CAT.length+' tersimpan permanen 💚']}
- case'catatan':return CAT.length?['ok','📒 CATATAN:\n'+CAT.map((c,i)=>(i+1)+'. '+c).join('\n')]:['err','Belum ada catatan. Pakai: /tulis <isi>'];
- case'hapuscatatan':{const i=parseInt(arg)-1;
-  if(!(i>=0&&i<CAT.length))return['err','Nomor salah — lihat dulu: /catatan'];
-  const h=CAT.splice(i,1)[0];S();return['ok','✓ Dihapus: '+h]}
- case'unduhcatatan':{if(!CAT.length)return['err','Belum ada catatan untuk diunduh'];
-  dl('catatan.txt',CAT.join('\n'));return['ok','⬇️ Semua catatan diunduh sebagai catatan.txt']}
- case'todo':{if(!arg)return TODO.length?['ok','📋 TUGAS:\n'+TODO.map((x,i)=>(i+1)+'. '+(x.d?'✅ ':'⬜ ')+x.t).join('\n')]:['err','Belum ada tugas. Pakai: /todo <tugas>'];
-  TODO.push({t:arg,d:false});S();return['ok','✓ Tugas #'+TODO.length+': '+arg]}
- case'selesai':{const i=parseInt(arg)-1;
-  if(!(i>=0&&i<TODO.length))return['err','Nomor salah — lihat dulu: /todo'];
-  TODO[i].d=!TODO[i].d;S();return['ok',(TODO[i].d?'✅ Selesai: ':'⬜ Dibuka lagi: ')+TODO[i].t]}
- case'ls':{const tg=arg?path(arg):cwd;
-  if(!DIRS[tg])return['err','ls: bukan folder: '+(arg||cwd)];
-  if(!DIRS[tg].length)return['ok','📁 '+tg+' — (kosong)'];
-  return['ok','📁 '+tg+'\n'+DIRS[tg].map(n=>{const f=(tg==='/'?'':tg)+'/'+n;
-   return(DIRS[f]?'📁 ':' ')+n}).join('\n')]}
- case'cd':{if(!arg||arg==='~'){cwd='/home/aku';S();return['ok','→ '+cwd]}
-  if(arg==='..'){cwd=parentOf(cwd);S();return['ok','→ '+cwd]}
-  const tg=path(arg);
-  if(!DIRS[tg])return['err','cd: bukan folder atau tidak ada: '+arg];
-  cwd=tg;S();return['ok','→ '+cwd]}
- case'pwd':return['ok','📍 '+cwd];
- case'cat':case'baca':{if(!arg)return['err','Pakai: /cat namafile'];
-  const tg=path(arg);
-  if(DIRS[tg])return['err','cat: itu folder — pakai /ls'];
-  if(FILES[tg]===undefined)return['err','cat: tidak ada: '+arg];
-  return['ok','📄 '+arg+':\n'+(FILES[tg]||'(kosong)')]}
- case'touch':{if(!arg)return['err','Pakai: /touch namafile.txt'];
-  const tg=path(arg),p=parentOf(tg);
-  if(!DIRS[p])return['err','Folder tujuan tidak ada — /mkdir dulu'];
-  if(FILES[tg]!==undefined||DIRS[tg])return['err','Sudah ada: '+arg];
-  FILES[tg]='';daftar(p,nameOf(tg));S();return['ok','✓ File dibuat: '+arg]}
- case'mkdir':{if(!arg)return['err','Pakai: /mkdir namafolder'];
-  const tg=path(arg),p=parentOf(tg);
-  if(!DIRS[p])return['err','Folder induk tidak ada'];
-  if(DIRS[tg]||FILES[tg]!==undefined)return['err','Nama sudah dipakai: '+arg];
-  DIRS[tg]=[];daftar(p,nameOf(tg));S();return['ok','✓ Folder dibuat: '+arg]}
- case'buat':{if(!arg)return['err','Pakai: /buat nama.txt isi teks'];
-  const m=arg.match(/^(\S+)(?:\s+([\s\S]*))?$/);
-  const tg=path(m[1]),p=parentOf(tg);
-  if(!DIRS[p])return['err','Folder tujuan tidak ada — /mkdir dulu'];
-  if(DIRS[tg])return['err','Itu nama folder'];
-  FILES[tg]=m[2]||'';daftar(p,nameOf(tg));
-  S();return['ok','✓ File disimpan: '+m[1]+' ('+(m[2]||'').length+' karakter)']}
- case'rm':case'hapusfile':{if(!arg)return['err','Pakai: /rm namafile'];
-  const tg=path(arg);
-  if(DIRS[tg])return['err','rm: itu folder — pakai: /rmdir '+arg];
-  if(FILES[tg]===undefined)return['err','rm: tidak ada: '+arg];
-  delete FILES[tg];const p=parentOf(tg);
-  DIRS[p]=(DIRS[p]||[]).filter(x=>x!==nameOf(tg));S();return['ok','✓ Dihapus: '+arg]}
- case'rmdir':{if(!arg)return['err','Pakai: /rmdir namafolder'];
-  const tg=path(arg);
-  if(!DIRS[tg])return['err','rmdir: bukan folder: '+arg];
-  if(tg==='/')return['err','rmdir: folder akar tidak bisa dihapus'];
-  if(DIRS[tg].length)return['err','rmdir: folder tidak kosong — hapus isinya dulu'];
-  if(tg===cwd)return['err','rmdir: kamu berada di dalam folder itu — /cd .. dulu'];
-  delete DIRS[tg];const p=parentOf(tg);
-  DIRS[p]=(DIRS[p]||[]).filter(x=>x!==nameOf(tg));S();return['ok','✓ Folder dihapus: '+arg]}
- case'file':{const k=Object.keys(FILES);
-  return k.length?['ok','📄 SEMUA FILE:\n'+k.map(f=>'  '+f+' ('+FILES[f].length+' kar.)').join('\n')]:['err','Belum ada file — pakai: /buat nama.txt isi']}
- case'unduh':{if(!arg)return['err','Pakai: /unduh namafile'];
-  const tg=path(arg);
-  if(FILES[tg]===undefined)return['err','File tidak ada: '+arg+' — lihat /file'];
-  dl(nameOf(tg),FILES[tg]);return['ok','⬇️ Diunduh: '+nameOf(tg)]}
- case'password':{const n=Math.max(6,Math.min(64,parseInt(arg)||16));
-  const k='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
-  let p='';const r=new Uint32Array(n);crypto.getRandomValues(r);
-  for(let i=0;i<n;i++)p+=k[r[i]%k.length];
-  return['ok','🔑 Password '+n+' karakter (crypto asli):\n'+p+'\n\nSalin sekarang — aku tidak menyimpannya.']}
- case'acak':{const m=arg.match(/^(\d+)\s+(\d+)$/);
-  if(!m)return['err','Pakai: /acak 1 100'];
-  const a=+m[1],b=+m[2];
-  if(a>=b)return['err','Angka pertama harus lebih kecil dari kedua'];
-  return['ok','🎲 '+Math.floor(Math.random()*(b-a+1)+a)+' (dari '+a+'–'+b+')']}
- case'upper':return arg?['ok',arg.toUpperCase()]:['err','Pakai: /upper teks'];
- case'lower':return arg?['ok',arg.toLowerCase()]:['err','Pakai: /lower teks'];
- case'balik':return arg?['ok',arg.split('').reverse().join('')]:['err','Pakai: /balik teks'];
- case'hitungkar':return arg?['ok',arg.length+' karakter, '+arg.split(/\s+/).filter(Boolean).length+' kata']:['err','Pakai: /hitungkar teks'];
- case'tema':{const c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[arg.toLowerCase()];
-  if(!c)return['err','Pilihan: ungu, hijau, biru, merah, kuning, pink'];
-  const rs=document.documentElement.style;
-  rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c);
-  try{localStorage.setItem('qai4Tema',arg.toLowerCase())}catch(e){}
-  return['ok','🎨 Tema ganti: '+arg.toUpperCase()+' (kedua kulit)']}
- case'neofetch':return['ok',neoStr()];
- case'siapa':return['ok','Aku QAI v6.4 KEMBAR 👑 — kembar visual applet terminal hijau itu, dengan otak Gemini lewat kunci resmi milikmu dan mesin lokal lengkap. Lulus audit 10 lapis. Bukan token pinjaman, bukan salinan ilegal. Identik di layar, bersih di belakang layar.'];
- case'riwayat':return histCmd.length?['ok','⏱ RIWAYAT INPUT ('+histCmd.length+'):\n'+histCmd.slice(-30).map((h,i)=>(i+1)+'. '+h).join('\n')]:['err','Belum ada riwayat'];
- case'bersih':case'clear':chat.innerHTML='';return['none',''];
- case'reset':{DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
-  FILES=JSON.parse(JSON.stringify(FILES_DEF));
-  CAT=[];TODO=[];NNDATA=[];NND=null;histCmd=[];
-  cwd='/home/aku';S();
-  return['ok','🗑 SEMUA data direset. (Kunci API & tema sengaja tidak dihapus — milikmu: /kunci off untuk melepas.)']}
- case'ajar':{const m=arg.match(/^(\S+)\s+(.+)$/);
-  if(!m)return['err','Pakai: /ajar <label> <kalimat>'];
-  NNDATA.push({l:m[1].toLowerCase(),t:m[2]});S();
-  return['ok','✓ Contoh #'+NNDATA.length+' masuk → label "'+m[1]+'"\n(Min. 2 contoh label beda → /latih)']}
- case'latih':return latihNet(Math.max(10,Math.min(1000,parseInt(arg)||300)));
- case'prediksi':case'tebak':{if(!NND)return['err','Belum dilatih: /ajar positif aku senang → /ajar negatif aku benci → /latih → /prediksi'];
-  if(!arg)return['err','Pakai: /prediksi <kalimat>'];
-  const f=fwd(NND,vec(arg,NND.V)),p=f.p;let b=0;
-  p.forEach((v,i)=>{if(v>p[b])b=i});
-  let h='🧠 Prediksi: "'+NND.L[b]+'" — keyakinan '+(p[b]*100).toFixed(1)+'%\n';
-  NND.L.forEach((l,i)=>{h+='  • '+l+': '+(p[i]*100).toFixed(1)+'%\n'});
-  const baru=tok(arg).filter(w=>!NND.V.includes(w));
-  if(baru.length)h+='\n⚠ Kata baru: '+baru.join(', ')+' → /ajar lalu /latih lagi';
-  return['ok',h]}
- case'otak':case'status':{let h='🧠 STATUS QAI v6.4 KEMBAR\n\n🎭 Kulit: '+document.body.dataset.skin+' | 📛 '+TITLE+'\n🌐 Gemini: '+(GEMKEY?'SIAP ('+GEMMODEL+') — mode '+MODE:'belum dipasang (/kunci AIza...)')+'\n🧠 Lokal: '+KB.length+' topik + executor + terminal + neural\n📁 Folder: '+Object.keys(DIRS).length+' | 📄 File: '+Object.keys(FILES).length+'\n📒 Catatan: '+CAT.length+' | 📋 Tugas: '+TODO.length+'\n📍 Posisi: '+cwd;
-  h+=NND?'\n🧬 Neural: AKTIF — '+NND.V.length+' kata, '+NND.H+' neuron':'\n🧬 Neural: menunggu /latih';
-  h+='\n\nVerifikasi penuh: /uji';
-  return['ok',h]}
- }
- return['err','Perintah tidak dikenal: /'+cmd+' — daftar lengkap: /perintah'];
+const low=t.toLowerCase();const sp=low.search(/\s/);
+let cmd=(sp<0?low:low.slice(0,sp)).slice(1);
+const arg=sp<0?'':t.slice(sp+1).trim();
+switch(cmd){
+case'perintah':case'help':case'bantuan':return['ok',HELP];
+case'uji':case'test':case'selftest':return selfTest();
+case'skin':{const s=arg.toLowerCase();
+if(s!=='kembar'&&s!=='qai')return['err',`Pilih: /skin kembar | /skin qai`];
+document.body.dataset.skin=s;
+try{localStorage.setItem('qai6Skin',JSON.stringify(s))}catch(e){}
+return['ok',`🎭 Kulit ganti: `+s.toUpperCase()+` (tersimpan permanen)`]}
+case'nama':{if(!arg)return['ok',`📛 Judul sekarang: `+TITLE+`\nGanti: /nama teks baru`];
+TITLE=arg;document.getElementById('header').textContent=TITLE;
+try{localStorage.setItem('qai6Title',JSON.stringify(TITLE))}catch(e){}
+return['ok',`📛 Judul header ganti: `+TITLE]}
+case'model':{if(!arg)return['ok',`🧩 Model sekarang: `+GEMMODEL+`\nGanti: /model nama-model (daftar model gratis ada di AI Studio)`];
+GEMMODEL=arg.trim();
+try{localStorage.setItem('qai6Model',JSON.stringify(GEMMODEL))}catch(e){}
+return['ok',`🧩 Model Gemini ganti: `+GEMMODEL]}
+case'remix':return['ok',`🛠 CARA ORANG MENCIPTAKAN APPLET SEMACAM INI (ikuti persis):\n\n1️⃣ Buka aistudio.google.com → menu "Build"\n2️⃣ Tempel prompt builder ini:\n"Buat aplikasi chat satu layar bergaya terminal: latar #050807, teks #4ade80 monospace, pesan AI dalam kotak border #22c55e, judul di tengah atas, dua baris misi hijau, input dengan prompt aku@qai:~$ . Semua jawaban memakai Gemini dan berbahasa Indonesia hangat terstruktur."\n3️⃣ Di panel Instruction, tempel system prompt:\n"Kamu asisten dalam antarmuka terminal hijau. Jawab selalu bahasa Indonesia, hangat dan terstruktur; akhiri sapaan pertama dengan menawarkan pengujian sesuatu."\n4️⃣ Uji di pratinjau → perbaiki via panel kode\n5️⃣ Publish → kau dapat URL /apps/... + tombol Remix PERSIS seperti yang kau lihat\n\nDi Studio, akses Gemini disediakan platform secara resmi — itulah bridge sah, tanpa trik token sesi.\nBonus: tombol Remix applet mana pun = fork resmi untuk membaca kodennya.`];
+case'kunci':{if(!arg)return['ok',`🔑 Status kunci: `+(GEMKEY?`TERPASANG (`+GEMKEY.slice(0,8)+`...) — mode: `+MODE:`belum ada. Ambil gratis: aistudio.google.com → Get API key → /kunci AIza...`)];
+if(arg==='off'){GEMKEY='';S();return['ok',`🔑 Kunci dilepas — 100% otak lokal.`]}
+if(arg.length<20)return['err',`Kunci terlalu pendek. Salin utuh (diawali AIza...)`];
+GEMKEY=arg.trim();S();
+return['ok',`🔑 Kunci terpasang, tersimpan hanya di perangkat ini.`+(GEMKEY.indexOf('AIza')!==0?`\n⚠ Biasanya kunci Google diawali "AIza" — cek lagi salinanmu.`:'')+`\nMode: `+MODE+` — tanya bebas tanpa / saat online. 🌐`]}
+case'mode':{const m=arg.toLowerCase();
+if(m!=='auto'&&m!=='online'&&m!=='offline')return['err',`Pilih: /mode auto | online | offline`];
+MODE=m;S();return['ok',`🎚 Mode: `+m.toUpperCase()+(m==='online'&&!GEMKEY?`\n⚠ Kunci belum dipasang — /kunci AIza...`:'')]}
+case'hitung':case'calc':{if(!arg)return['err',`Pakai: /hitung 12*8+5`];
+const h=calc(arg);return h===null?['err',`Format angka: /hitung 12*8+5`]:['ok',`= `+h]}
+case'persen':{const m=duaAngka(arg);
+if(!m)return['err',`Pakai: /persen 15 dari 200000`];
+return['ok',`= `+persen(m[0],m[1])]}
+case'waktu':case'jam':case'tanggal':return['ok',waktuStr()];
+case'tulis':case'catat':{if(!arg)return['err',`Pakai: /tulis <isi catatan>`];
+CAT.push('['+new Date().toLocaleDateString('id-ID')+'] '+arg);S();
+return['ok',`✓ Catatan #`+CAT.length+` tersimpan permanen 💚`]}
+case'catatan':return CAT.length?['ok',`📒 CATATAN:\n`+CAT.map(function(c,i){return(i+1)+'. '+c}).join('\n')]:['err',`Belum ada catatan. Pakai: /tulis <isi>`];
+case'hapuscatatan':{const i=parseInt(arg)-1;
+if(!(i>=0&&i<CAT.length))return['err',`Nomor salah — lihat dulu: /catatan`];
+const h=CAT.splice(i,1)[0];S();return['ok',`✓ Dihapus: `+h]}
+case'unduhcatatan':{if(!CAT.length)return['err',`Belum ada catatan untuk diunduh`];
+dl('catatan.txt',CAT.join('\n'));return['ok',`⬇️ Semua catatan diunduh sebagai catatan.txt`]}
+case'todo':{if(!arg)return TODO.length?['ok',`📋 TUGAS:\n`+TODO.map(function(x,i){return(i+1)+'. '+(x.d?'✅ ':'⬜ ')+x.t}).join('\n')]:['err',`Belum ada tugas. Pakai: /todo <tugas>`];
+TODO.push({t:arg,d:false});S();return['ok',`✓ Tugas #`+TODO.length+`: `+arg]}
+case'selesai':{const i=parseInt(arg)-1;
+if(!(i>=0&&i<TODO.length))return['err',`Nomor salah — lihat dulu: /todo`];
+TODO[i].d=!TODO[i].d;S();return['ok',(TODO[i].d?`✅ Selesai: `:`⬜ Dibuka lagi: `)+TODO[i].t]}
+case'ls':{const tg=arg?path(arg):cwd;
+if(!DIRS[tg])return['err',`ls: bukan folder: `+(arg||cwd)];
+if(!DIRS[tg].length)return['ok',`📁 `+tg+` — (kosong)`];
+return['ok',`📁 `+tg+'\n'+DIRS[tg].map(function(n){const f=(tg==='/'?'':tg)+'/'+n;
+return(DIRS[f]?`📁 `:' ')+n}).join('\n')]}
+case'cd':{if(!arg||arg==='~'){cwd='/home/aku';S();return['ok',`→ `+cwd]}
+if(arg==='..'){cwd=parentOf(cwd);S();return['ok',`→ `+cwd]}
+const tg=path(arg);
+if(!DIRS[tg])return['err',`cd: bukan folder atau tidak ada: `+arg];
+cwd=tg;S();return['ok',`→ `+cwd]}
+case'pwd':return['ok',`📍 `+cwd];
+case'cat':case'baca':{if(!arg)return['err',`Pakai: /cat namafile`];
+const tg=path(arg);
+if(DIRS[tg])return['err',`cat: itu folder — pakai /ls`];
+if(FILES[tg]===undefined)return['err',`cat: tidak ada: `+arg];
+return['ok',`📄 `+arg+`:\n`+(FILES[tg]||`(kosong)`)]}
+case'touch':{if(!arg)return['err',`Pakai: /touch namafile.txt`];
+const tg=path(arg),p=parentOf(tg);
+if(!DIRS[p])return['err',`Folder tujuan tidak ada — /mkdir dulu`];
+if(FILES[tg]!==undefined||DIRS[tg])return['err',`Sudah ada: `+arg];
+FILES[tg]='';daftar(p,nameOf(tg));S();return['ok',`✓ File dibuat: `+arg]}
+case'mkdir':{if(!arg)return['err',`Pakai: /mkdir namafolder`];
+const tg=path(arg),p=parentOf(tg);
+if(!DIRS[p])return['err',`Folder induk tidak ada`];
+if(DIRS[tg]||FILES[tg]!==undefined)return['err',`Nama sudah dipakai: `+arg];
+DIRS[tg]=[];daftar(p,nameOf(tg));S();return['ok',`✓ Folder dibuat: `+arg]}
+case'buat':{if(!arg)return['err',`Pakai: /buat nama.txt isi teks`];
+const m=pecah(arg);
+const nama=m?m[0]:arg;
+const isi=m?m[1]:'';
+const tg=path(nama),p=parentOf(tg);
+if(!DIRS[p])return['err',`Folder tujuan tidak ada — /mkdir dulu`];
+if(DIRS[tg])return['err',`Itu nama folder`];
+FILES[tg]=isi;daftar(p,nameOf(tg));
+S();return['ok',`✓ File disimpan: `+nama+` (`+isi.length+` karakter)`]}
+case'rm':case'hapusfile':{if(!arg)return['err',`Pakai: /rm namafile`];
+const tg=path(arg);
+if(DIRS[tg])return['err',`rm: itu folder — pakai: /rmdir `+arg];
+if(FILES[tg]===undefined)return['err',`rm: tidak ada: `+arg];
+delete FILES[tg];const p=parentOf(tg);
+DIRS[p]=(DIRS[p]||[]).filter(function(x){return x!==nameOf(tg)});S();return['ok',`✓ Dihapus: `+arg]}
+case'rmdir':{if(!arg)return['err',`Pakai: /rmdir namafolder`];
+const tg=path(arg);
+if(!DIRS[tg])return['err',`rmdir: bukan folder: `+arg];
+if(tg==='/')return['err',`rmdir: folder akar tidak bisa dihapus`];
+if(DIRS[tg].length)return['err',`rmdir: folder tidak kosong — hapus isinya dulu`];
+if(tg===cwd)return['err',`rmdir: kamu berada di dalam folder itu — /cd .. dulu`];
+delete DIRS[tg];const p=parentOf(tg);
+DIRS[p]=(DIRS[p]||[]).filter(function(x){return x!==nameOf(tg)});S();return['ok',`✓ Folder dihapus: `+arg]}
+case'file':{const k=Object.keys(FILES);
+return k.length?['ok',`📄 SEMUA FILE:\n`+k.map(function(f){return '  '+f+' ('+FILES[f].length+' kar.)'}).join('\n')]:['err',`Belum ada file — pakai: /buat nama.txt isi`]}
+case'unduh':{if(!arg)return['err',`Pakai: /unduh namafile`];
+const tg=path(arg);
+if(FILES[tg]===undefined)return['err',`File tidak ada: `+arg+` — lihat /file`];
+dl(nameOf(tg),FILES[tg]);return['ok',`⬇️ Diunduh: `+nameOf(tg)]}
+case'password':{const n=Math.max(6,Math.min(64,parseInt(arg)||16));
+const k='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+let p='';const r=new Uint32Array(n);crypto.getRandomValues(r);
+for(let i=0;i<n;i++)p+=k[r[i]%k.length];
+return['ok',`🔑 Password `+n+` karakter (crypto asli):\n`+p+`\n\nSalin sekarang — aku tidak menyimpannya.`]}
+case'acak':{const m=pecah(arg);
+if(!m||!angkaTok(m[0])||!angkaTok(m[1]))return['err',`Pakai: /acak 1 100`];
+const a=+m[0],b=+m[1];
+if(a>=b)return['err',`Angka pertama harus lebih kecil dari kedua`];
+return['ok',`🎲 `+Math.floor(Math.random()*(b-a+1)+a)+` (dari `+a+`–`+b+`)`]}
+case'upper':return arg?['ok',arg.toUpperCase()]:['err',`Pakai: /upper teks`];
+case'lower':return arg?['ok',arg.toLowerCase()]:['err',`Pakai: /lower teks`];
+case'balik':return arg?['ok',arg.split('').reverse().join('')]:['err',`Pakai: /balik teks`];
+case'hitungkar':return arg?['ok',arg.length+` karakter, `+arg.split(' ').filter(function(w){return w!==''}).length+` kata`]:['err',`Pakai: /hitungkar teks`];
+case'tema':{const c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[arg.toLowerCase()];
+if(!c)return['err',`Pilihan: ungu, hijau, biru, merah, kuning, pink`];
+const rs=document.documentElement.style;
+rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c);
+try{localStorage.setItem('qai4Tema',arg.toLowerCase())}catch(e){}
+return['ok',`🎨 Tema ganti: `+arg.toUpperCase()+` (kedua kulit)`]}
+case'neofetch':return['ok',neoStr()];
+case'siapa':return['ok',`Aku QAI v6.4 KEMBAR 👑 — kembar visual applet terminal hijau itu, dengan otak Gemini lewat kunci resmi milikmu dan mesin lokal lengkap. Lulus audit 10 lapis. Bukan token pinjaman, bukan salinan ilegal. Identik di layar, bersih di belakang layar.`];
+case'riwayat':return histCmd.length?['ok',`⏱ RIWAYAT INPUT (`+histCmd.length+`):\n`+histCmd.slice(-30).map(function(h,i){return(i+1)+'. '+h}).join('\n')]:['err',`Belum ada riwayat`];
+case'bersih':case'clear':chat.innerHTML='';return['none',''];
+case'reset':{DIRS=JSON.parse(JSON.stringify(DIRS_DEF));
+FILES=JSON.parse(JSON.stringify(FILES_DEF));
+CAT=[];TODO=[];NNDATA=[];NND=null;histCmd=[];
+cwd='/home/aku';S();
+return['ok',`🗑 SEMUA data direset. (Kunci API & tema sengaja tidak dihapus — milikmu: /kunci off untuk melepas.)`]}
+case'ajar':{const m=pecah(arg);
+if(!m||!m[1])return['err',`Pakai: /ajar <label> <kalimat>`];
+NNDATA.push({l:m[0].toLowerCase(),t:m[1]});S();
+return['ok',`✓ Contoh #`+NNDATA.length+` masuk → label "`+m[0]+`"\n(Min. 2 contoh label beda → /latih)`]}
+case'latih':return latihNet(Math.max(10,Math.min(1000,parseInt(arg)||300)));
+case'prediksi':case'tebak':{if(!NND)return['err',`Belum dilatih: /ajar positif aku senang → /ajar negatif aku benci → /latih → /prediksi`];
+if(!arg)return['err',`Pakai: /prediksi <kalimat>`];
+const f=fwd(NND,vec(arg,NND.V)),p=f.p;let b=0;
+p.forEach(function(v,i){if(v>p[b])b=i});
+let h=`🧠 Prediksi: "`+NND.L[b]+`" — keyakinan `+(p[b]*100).toFixed(1)+`%\n`;
+NND.L.forEach(function(l,i){h+='  • '+l+': '+(p[i]*100).toFixed(1)+'%\n'});
+const baru=tok(arg).filter(function(w){return NND.V.indexOf(w)<0});
+if(baru.length)h+=`\n⚠ Kata baru: `+baru.join(', ')+` → /ajar lalu /latih lagi`;
+return['ok',h]}
+case'otak':case'status':{let h=`🧠 STATUS QAI v6.4 KEMBAR\n\n🎭 Kulit: `+document.body.dataset.skin+` | 📛 `+TITLE+`\n🌐 Gemini: `+(GEMKEY?`SIAP (`+GEMMODEL+`) — mode `+MODE:`belum dipasang (/kunci AIza...)`)+`\n🧠 Lokal: `+KB.length+` topik + executor + terminal + neural\n📁 Folder: `+Object.keys(DIRS).length+` | 📄 File: `+Object.keys(FILES).length+`\n📒 Catatan: `+CAT.length+` | 📋 Tugas: `+TODO.length+`\n📍 Posisi: `+cwd;
+h+=NND?`\n🧬 Neural: AKTIF — `+NND.V.length+` kata, `+NND.H+` neuron`:`\n🧬 Neural: menunggu /latih`;
+h+=`\n\nVerifikasi penuh: /uji`;
+return['ok',h]}
 }
-if(/^[\d\s+\-*/().^,]+$/.test(t)&&/[\d)]\s*[-+*/^]\s*[\d(]/.test(t)){
- const h=calc(t);if(h!==null)return['ok','= '+h]}
+return['err',`Perintah tidak dikenal: /`+cmd+` — daftar lengkap: /perintah`];
+}
+if(adaAngka(t)&&adaOp(t)){
+const h=calc(t);if(h!==null)return['ok',`= `+h]}
 const low2=t.toLowerCase();
-const kata=low2.replace(/[?.!,"']/g,'').split(/\s+/).filter(w=>w.length>1);
+const kata=buangTanda(low2).split(' ').filter(function(w){return w.length>1});
 const w0=kata.length?kata[0]:'';
 if(w0==='perintah'||w0==='help'||w0==='bantuan')return['ok',HELP];
 if((w0==='hitung'||w0==='calc')&&kata.length>1){
- const h=calc(t.slice(t.indexOf(' ')+1).trim());
- if(h!==null)return['ok','= '+h+'\n\n(dihitung langsung walau tanpa / — versi perintah: /hitung)']}
-if(/(jam berapa|berapa jam|tanggal berapa|hari apa|waktu sekarang|jam sekarang)/.test(low2))
- return['ok',waktuStr()];
-const pm=low2.match(/^persen\s+([\d.,]+)\s*%?\s*(?:dari)?\s*([\d.,]+)$/);
-if(pm)return['ok','= '+persen(pm[1],pm[2])];
-const adaTanya=t.indexOf('?')>=0||kata.some(w=>KATATANYA.indexOf(w)>=0);
+const h=calc(t.slice(t.indexOf(' ')+1).trim());
+if(h!==null)return['ok',`= `+h+`\n\n(dihitung langsung walau tanpa / — versi perintah: /hitung)`]}
+if(adaFrasa(low2))return['ok',waktuStr()];
+if(w0==='persen'){const m=duaAngka(low2);if(m)return['ok',`= `+persen(m[0],m[1])]}
+const adaTanya=t.indexOf('?')>=0||kata.some(function(w){return KATATANYA.indexOf(w)>=0});
 if(!adaTanya&&w0){
- if((kata.length===1&&ANYCMD.indexOf(w0)>=0)||
-    (kata.length>1&&TECHMULTI.indexOf(w0)>=0))
-  return['err','"'+w0+'" adalah perintah di sini — pakai garis miring di depan: /'+t];
+if((kata.length===1&&ANYCMD.indexOf(w0)>=0)||
+(kata.length>1&&TECHMULTI.indexOf(w0)>=0))
+return['err',`"`+w0+`" adalah perintah di sini — pakai garis miring di depan: /`+t];
 }
 let best=null,bs=0;
-KB.forEach(e=>{let s=0;e.k.forEach(k=>{
- const re=new RegExp('\\b'+k.replace(/[.*+?^${}()|[$$\$$/g,'\\$&')+'\\b');
- if(re.test(low2))s+=k.length*2;
- else kata.forEach(w=>{if(w.length>2&&(k.includes(w)||w.includes(k)))s+=w.length})});
- if(s>bs){bs=s;best=e}});
+KB.forEach(function(e){let s=0;e.k.forEach(function(k){
+if(low2.indexOf(k)>=0)s+=k.length*2;
+else kata.forEach(function(w){if(w.length>2&&(k.indexOf(w)>=0||w.indexOf(k)>=0))s+=w.length});});
+if(s>bs){bs=s;best=e}});
 if(best&&bs>=4)return['ok',best.a];
 const topik=kata.length?kata[kata.length-1]:t;
-return['ok','Kuproses: "'+topik+'" 🧠\n\nTopik ini belum ada di perpustakaan lokalku.'+(GEMKEY?'\nSaat online, mode auto mengirimnya ke Gemini otomatis.':'\nPasang /kunci AIza... maka pertanyaan bebas kujawab lewat otak Gemini resmi — persis seperti kembaranku di Studio.')+'\n\nPerintah lengkap: /perintah 👑'];
+return['ok',`Kuproses: "`+topik+`" 🧠\n\nTopik ini belum ada di perpustakaan lokalku.`+(GEMKEY?`\nSaat online, mode auto mengirimnya ke Gemini otomatis.`:`\nPasang /kunci AIza... maka pertanyaan bebas kujawab lewat otak Gemini resmi — persis seperti kembaranku di Studio.`)+`\n\nPerintah lengkap: /perintah 👑`];
 }
 function bubble(txt,cls){const d=document.createElement('div');
- d.className='msg '+cls;
- const pref=(cls.indexOf('user')>=0&&document.body.dataset.skin==='kembar')?'aku@qai:~$ ':'';
- d.textContent=pref+txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
+d.className='msg '+cls;
+const pref=(cls.indexOf('user')>=0&&document.body.dataset.skin==='kembar')?`aku@qai:~$ `:'';
+d.textContent=pref+txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
 function ingat(v,j,c){riw.push({t:v,c:'user'},{t:j,c:c});
- if(riw.length>80)riw=riw.slice(-80)}
-riw.forEach(m=>bubble(m.t,m.c||'ai'));
-if(!riw.length)bubble('Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — kembar identik applet terminal hijau di AI Studio itu:\n*  Menjawab pertanyaan dan menjelaskan konsep yang rumit\n*  Menulis, menganalisis, dan memperbaiki (debugging) kode\n*  Menerjemahkan teks ke berbagai bahasa\n*  Membantu brainstorming, artikel, dan ringkasan data\n*  PLUS: terminal, file, catatan, tugas, neural network — /perintah\n*  STATUS: lulus audit 10 lapis, 27 bug ditutup, siap dipakai ✅\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Apakah kita mau melakukan pengujian sesuatu?\n\nStempel final di perangkatmu: ketik /uji','ai');
+if(riw.length>80)riw=riw.slice(-80)}
+riw.forEach(function(m){bubble(m.t,m.c||'ai')});
+if(!riw.length)bubble(`Halo! Wah, salam kenal untukmu dan developer hebat yang membangunku! 🚀\n\nAku QAI KEMBAR v6.4 — kembar identik applet terminal hijau di AI Studio itu:\n*  Menjawab pertanyaan dan menjelaskan konsep yang rumit\n*  Menulis, menganalisis, dan memperbaiki (debugging) kode\n*  Menerjemahkan teks ke berbagai bahasa\n*  Membantu brainstorming, artikel, dan ringkasan data\n*  PLUS: terminal, file, catatan, tugas, neural network — /perintah\n*  STATUS: lulus audit 10 lapis, 27 bug ditutup, siap dipakai ✅\n\nSenang sekali bisa terhubung dan berjalan di atas antarmuka (UI) buatanmu ini. Bagaimana saya bisa membantumu hari ini? Apakah kita mau melakukan pengujian sesuatu?\n\nStempel final di perangkatmu: ketik /uji`,'ai');
 function kirim(){const v=q.value.trim();if(!v)return;
- bubble(v,'user');q.value='';
- histCmd.push(v);if(histCmd.length>50)histCmd=histCmd.slice(-50);
- const isCmd=v.charAt(0)==='/';
- setTimeout(async()=>{
-  if(!isCmd&&MODE==='online'&&!GEMKEY){
-   const j='Mode ONLINE tapi kunci belum dipasang.\nAmbil gratis: aistudio.google.com → Get API key → /kunci AIza...\n(atau /mode auto agar otak lokal jadi cadangan)';
-   bubble(j,'ai err');ingat(v,j,'ai err');S();return}
-  if(!isCmd&&GEMKEY&&MODE!=='offline'&&navigator.onLine!==false){
-   const el=bubble('▸ Menghubungi Gemini ('+GEMMODEL+')...','ai');
-   try{
-    const j=await gemini(v);
-    el.textContent=j;ingat(v,j,'ai');S();return;
-   }catch(err){
-    if(MODE==='online'){
-     el.textContent='⚠ Gemini gagal: '+err.message+'\nPeriksa: /kunci • /model • kuota gratis • koneksi.';
-     el.className='msg ai err';ingat(v,el.textContent,'ai err');S();return}
-    const r2=proses(v);
-    el.textContent='⚠ Gemini tak terjangkau ('+err.message+') — otak lokal mengambil alih:\n\n'+r2[1];
-    el.className='msg '+(r2[0]==='err'?'ai err':'ai');
-    ingat(v,el.textContent,'ai '+r2[0]);S();return}
-  }
-  const r3=proses(v);
-  if(r3[0]!=='none'){const c=r3[0]==='err'?'ai err':'ai';
-   bubble(r3[1],c);ingat(v,r3[1],c)}
-  S();
- },150)}
-q.addEventListener('focus',()=>setTimeout(()=>{q.scrollIntoView({block:'nearest'})},350));
-document.getElementById('input-bar').addEventListener('click',e=>{
- if(e.target.id!=='go')q.focus()});
+bubble(v,'user');q.value='';
+histCmd.push(v);if(histCmd.length>50)histCmd=histCmd.slice(-50);
+const isCmd=v.charAt(0)==='/';
+setTimeout(async function(){
+if(!isCmd&&MODE==='online'&&!GEMKEY){
+const j=`Mode ONLINE tapi kunci belum dipasang.\nAmbil gratis: aistudio.google.com → Get API key → /kunci AIza...\n(atau /mode auto agar otak lokal jadi cadangan)`;
+bubble(j,'ai err');ingat(v,j,'ai err');S();return}
+if(!isCmd&&GEMKEY&&MODE!=='offline'&&navigator.onLine!==false){
+const el=bubble(`▸ Menghubungi Gemini (`+GEMMODEL+`)...`,'ai');
+try{
+const j=await gemini(v);
+el.textContent=j;ingat(v,j,'ai');S();return;
+}catch(err){
+if(MODE==='online'){
+el.textContent=`⚠ Gemini gagal: `+err.message+`\nPeriksa: /kunci • /model • kuota gratis • koneksi.`;
+el.className='msg ai err';ingat(v,el.textContent,'ai err');S();return}
+const r2=proses(v);
+el.textContent=`⚠ Gemini tak terjangkau (`+err.message+`) — otak lokal mengambil alih:\n\n`+r2[1];
+el.className='msg '+(r2[0]==='err'?'ai err':'ai');
+ingat(v,el.textContent,'ai '+r2[0]);S();return}
+}
+const r3=proses(v);
+if(r3[0]!=='none'){const c=r3[0]==='err'?'ai err':'ai';
+bubble(r3[1],c);ingat(v,r3[1],c)}
+S();
+},150)}
+q.addEventListener('focus',function(){setTimeout(function(){q.scrollIntoView({block:'nearest'})},350)});
+document.getElementById('input-bar').addEventListener('click',function(e){
+if(e.target.id!=='go')q.focus()});
 document.getElementById('go').addEventListener('click',kirim);
-q.addEventListener('keydown',e=>{if(e.key==='Enter')kirim()});
+q.addEventListener('keydown',function(e){if(e.key==='Enter')kirim()});
 try{const th=localStorage.getItem('qai4Tema');
- if(th){const c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[th];
-  if(c){const rs=document.documentElement.style;
-   rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c)}}}catch(e){}
+if(th){const c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[th];
+if(c){const rs=document.documentElement.style;
+rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c)}}}catch(e){}
 window.__qaiOK=true;
 </script>
 <script>
 setTimeout(function(){
- if(window.__qaiOK)return;
- var msg=window.__qaiErr?('⚠ Error JS terdeteksi: '+window.__qaiErr+'\nKirim screenshot kotak ini ke Qwen — dia akan menunjuk barisnya.'):('⚠ Script utama tidak berjalan — kemungkinan salinan kode terpotong saat paste. Upload ulang file utuh.');
- var d=document.createElement('div');
- d.style.cssText='color:#fbbf24;background:#1c1006;border:1px solid #f59e0b;margin:8px 14px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace';
- d.textContent=msg;
- document.body.insertBefore(d,document.getElementById('input-bar'));
+if(window.__qaiOK)return;
+var msg=window.__qaiErr?(`⚠ Error JS terdeteksi: `+window.__qaiErr+`\nKirim screenshot kotak ini ke Qwen — dia akan menunjuk barisnya.`):(`⚠ Script utama tidak berjalan — kemungkinan salinan kode terpotong saat paste. Upload ulang file utuh.`);
+var d=document.createElement('div');
+d.style.cssText='color:#fbbf24;background:#1c1006;border:1px solid #f59e0b;margin:8px 14px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace';
+d.textContent=msg;
+document.body.insertBefore(d,document.getElementById('input-bar'));
 },1500);
 </script>
 </body></html>
-
+  
