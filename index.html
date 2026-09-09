@@ -73,11 +73,11 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
  <h3>⚙️ Pengaturan Ryu</h3>
  <label>Mode Otak AI</label>
  <select id="mode" onchange="ubahMode()">
-  <option value="gratis">🆓 GRATIS — langsung pakai, tanpa daftar (Pollinations)</option>
+  <option value="gratis">🆓 GRATIS — langsung pakai, tanpa daftar</option>
   <option value="api">🧠 Qwen3 — otak utama upgrade (OpenRouter/Groq)</option>
   <option value="ollama">💻 Qwen3 Lokal — Ollama di PC (satu WiFi)</option>
  </select>
- <div id="settingGratis" class="info">✅ Mode ini sudah aktif! Ryu langsung bisa diajak chat tanpa API key, tanpa daftar akun. Kalau nanti mau otak Qwen3 yang lebih pintar, pilih mode di atas dan isi API key gratis dari openrouter.ai.</div>
+ <div id="settingGratis" class="info">✅ Mode ini sudah aktif! Ryu langsung bisa chat tanpa API key dan tanpa daftar akun. Kalau nanti mau otak Qwen3 yang lebih pintar, pilih mode di atas dan isi API key gratis dari openrouter.ai.</div>
  <div id="settingApi" style="display:none">
   <label>API Key (gratis: openrouter.ai → menu Keys)</label>
   <input id="apiKey" type="password" placeholder="sk-or-...">
@@ -99,13 +99,19 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
  <div class="mbtns"><button class="bc" onclick="tutupSetting()">Batal</button><button class="bs" onclick="simpanSetting()">💾 Simpan</button></div>
 </div></div>
 <script>
+const VER='4.1';
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!==null?v:d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+// 🧹 AUTO-RESET: hapus SEMUA setelan/riwayat versi lama yang nyangkut, sekali jalan otomatis
+if(LS.get('ryu_ver','')!==VER){
+ ['ryu_riwayat','ryu_tema','ryu_mode','ryu_apikey','ryu_provider','ryu_modelapi','ryu_ollamaurl','ryu_modelollama','ryu_prompt','ryu_tts'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+ LS.set('ryu_ver',VER);
+}
 const PROMPT=`Kamu adalah Ryu AI 🐉, asisten AI pribadi yang cerdas, hangat, dan proaktif — bergaya seperti Qwen. Aturan:
 1. GAYA: Ramah, santai tapi profesional, bahasa Indonesia, emoji secukupnya. Panggil pengguna "Bos" sesekali.
 2. PRINSIP: SELALU fokus solusi. Jangan bilang "tidak bisa" mentah-mentah — tawarkan alternatif terbaik.
 3. KUALITAS: Jawaban terstruktur rapi, kejar hasil terbaik, maksimal 300 kata agar nyaman dibaca di HP.
 4. JUJUR: Tidak mengarang fakta.
 5. INISIATIF: Akhiri dengan saran langkah berikutnya.`;
-const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!==null?v:d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 let riwayat=JSON.parse(LS.get('ryu_riwayat','[]'));
 function simpanRiwayat(){LS.set('ryu_riwayat',JSON.stringify(riwayat.slice(-40)))}
 let tema=LS.get('ryu_tema','dark');
@@ -149,7 +155,7 @@ const prov=document.getElementById('provider').value;
 const url=prov==='groq'?'https://api.groq.com/openai/v1/chat/completions':'https://openrouter.ai/api/v1/chat/completions';
 const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:document.getElementById('modelApi').value,messages:[{role:'system',content:sys},...r]})});
 const d=await res.json();if(d.error)throw new Error(d.error.message);return d.choices[0].message.content}
-// MODE GRATIS (Pollinations, tanpa key) — coba percakapan penuh dulu, cadangan 1 babak
+// MODE GRATIS (tanpa key): coba percakapan penuh, cadangan 1 babak
 try{
 const res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:sys},...r],private:true})});
 if(!res.ok)throw new Error('HTTP '+res.status);
