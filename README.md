@@ -1,1 +1,1 @@
-# qai-kembar
+# Ryu AI
