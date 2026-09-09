@@ -48,6 +48,7 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
 .mbox input,.mbox select,.mbox textarea{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:.88em;outline:none}
 .mbox textarea{min-height:90px;resize:vertical;font-size:.78em}
 .trow{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:.88em}
+.info{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#86efac;font-size:.78em;padding:10px;border-radius:10px;margin-top:12px;line-height:1.5}
 .mbtns{display:flex;gap:10px;margin-top:18px}
 .mbtns button{flex:1;padding:12px;border-radius:12px;border:none;font-weight:bold;cursor:pointer;font-size:.88em}
 .bs{background:linear-gradient(135deg,var(--p),var(--b));color:#fff}
@@ -58,7 +59,7 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
 <body class="dark">
 <div class="header">
  <div class="logo">R</div>
- <div class="htext"><h1>Ryu AI</h1><p><span class="st"></span>Ditenagai Qwen • Otak Utama</p></div>
+ <div class="htext"><h1>Ryu AI</h1><p><span class="st"></span><span id="sub">Otak Gratis Aktif • Tanpa Daftar</span></p></div>
  <button class="hb" onclick="toggleTema()" id="temaBtn">🌙</button>
  <button class="hb" onclick="bukaSetting()">⚙️</button>
 </div>
@@ -72,10 +73,12 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
  <h3>⚙️ Pengaturan Ryu</h3>
  <label>Mode Otak AI</label>
  <select id="mode" onchange="ubahMode()">
-  <option value="api">🌐 API Online (OpenRouter/Groq)</option>
-  <option value="ollama">💻 Ollama di PC (satu WiFi)</option>
+  <option value="gratis">🆓 GRATIS — langsung pakai, tanpa daftar (Pollinations)</option>
+  <option value="api">🧠 Qwen3 — otak utama upgrade (OpenRouter/Groq)</option>
+  <option value="ollama">💻 Qwen3 Lokal — Ollama di PC (satu WiFi)</option>
  </select>
- <div id="settingApi">
+ <div id="settingGratis" class="info">✅ Mode ini sudah aktif! Ryu langsung bisa diajak chat tanpa API key, tanpa daftar akun. Kalau nanti mau otak Qwen3 yang lebih pintar, pilih mode di atas dan isi API key gratis dari openrouter.ai.</div>
+ <div id="settingApi" style="display:none">
   <label>API Key (gratis: openrouter.ai → menu Keys)</label>
   <input id="apiKey" type="password" placeholder="sk-or-...">
   <label>Penyedia</label>
@@ -99,7 +102,7 @@ body{background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));height:
 const PROMPT=`Kamu adalah Ryu AI 🐉, asisten AI pribadi yang cerdas, hangat, dan proaktif — bergaya seperti Qwen. Aturan:
 1. GAYA: Ramah, santai tapi profesional, bahasa Indonesia, emoji secukupnya. Panggil pengguna "Bos" sesekali.
 2. PRINSIP: SELALU fokus solusi. Jangan bilang "tidak bisa" mentah-mentah — tawarkan alternatif terbaik.
-3. KUALITAS: Jawaban terstruktur rapi, kejar hasil terbaik.
+3. KUALITAS: Jawaban terstruktur rapi, kejar hasil terbaik, maksimal 300 kata agar nyaman dibaca di HP.
 4. JUJUR: Tidak mengarang fakta.
 5. INISIATIF: Akhiri dengan saran langkah berikutnya.`;
 const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v!==null?v:d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
@@ -111,7 +114,7 @@ function toggleTema(){tema=tema==='dark'?'light':'dark';LS.set('ryu_tema',tema);
 terapkanTema();
 function ucapkan(t){try{if(!('speechSynthesis'in window))return false;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*#_`>]/g,'').slice(0,800));u.lang='id-ID';speechSynthesis.speak(u);return true}catch(e){return false}}
 let rec=null,recOn=false;
-function toggleMic(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('🎤 Input suara tidak tersedia di lingkungan ini. Coba buka lewat browser Chrome, atau ketik saja — Ryu tetap bisa! 😉');return}
+function toggleMic(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('🎤 Input suara tidak tersedia di lingkungan ini. Coba buka lewat Chrome, atau ketik saja — Ryu tetap bisa! 😉');return}
 const mb=document.getElementById('micBtn');if(recOn){rec.stop();return}
 rec=new SR();rec.lang='id-ID';rec.interimResults=true;
 rec.onstart=()=>{recOn=true;mb.classList.add('rec')};
@@ -122,33 +125,53 @@ rec.start()}
 document.getElementById('sysPrompt').value=LS.get('ryu_prompt',PROMPT);
 [['mode','ryu_mode'],['apiKey','ryu_apikey'],['provider','ryu_provider'],['modelApi','ryu_modelapi'],['ollamaUrl','ryu_ollamaurl'],['modelOllama','ryu_modelollama']].forEach(([id,k])=>{const v=LS.get(k,null);if(v!==null)document.getElementById(id).value=v});
 document.getElementById('ttsAuto').checked=LS.get('ryu_tts','0')==='1';
-function ubahMode(){const m=document.getElementById('mode').value;document.getElementById('settingApi').style.display=m==='api'?'block':'none';document.getElementById('settingOllama').style.display=m==='ollama'?'block':'none'}
+function ubahMode(){const m=document.getElementById('mode').value;
+document.getElementById('settingGratis').style.display=m==='gratis'?'block':'none';
+document.getElementById('settingApi').style.display=m==='api'?'block':'none';
+document.getElementById('settingOllama').style.display=m==='ollama'?'block':'none';
+const sub={gratis:'Otak Gratis Aktif • Tanpa Daftar',api:'Ditenagai Qwen3 • Otak Utama',ollama:'Qwen3 Lokal • Ollama'};
+document.getElementById('sub').textContent=sub[m]||sub.gratis}
 ubahMode();
 function bukaSetting(){document.getElementById('modal').classList.add('show')}
 function tutupSetting(){document.getElementById('modal').classList.remove('show')}
-function simpanSetting(){[['mode','ryu_mode'],['apiKey','ryu_apikey'],['provider','ryu_provider'],['modelApi','ryu_modelapi'],['ollamaUrl','ryu_ollamaurl'],['modelOllama','ryu_modelollama'],['sysPrompt','ryu_prompt']].forEach(([id,k])=>LS.set(k,document.getElementById(id).value));LS.set('ryu_tts',document.getElementById('ttsAuto').checked?'1':'0');tutupSetting();alert('✅ Pengaturan Ryu tersimpan!')}
+function simpanSetting(){[['mode','ryu_mode'],['apiKey','ryu_apikey'],['provider','ryu_provider'],['modelApi','ryu_modelapi'],['ollamaUrl','ryu_ollamaurl'],['modelOllama','ryu_modelollama'],['sysPrompt','ryu_prompt']].forEach(([id,k])=>LS.set(k,document.getElementById(id).value));LS.set('ryu_tts',document.getElementById('ttsAuto').checked?'1':'0');ubahMode();tutupSetting();alert('✅ Pengaturan Ryu tersimpan!')}
 const messages=document.getElementById('messages'),input=document.getElementById('input'),btn=document.getElementById('send');
 function tampilWelcome(){messages.innerHTML=`<div class="welcome"><div class="bl">🐉</div><h2>Halo! Aku <span>Ryu</span></h2><p>Asisten AI-mu. Aku selalu fokus cari solusi,<br>bukan bilang "tidak bisa". Tanya apa saja!</p><div class="chips"><div class="chip" onclick="chipKlik('Jelaskan apa itu AI dengan sederhana')">💡 Apa itu AI?</div><div class="chip" onclick="chipKlik('Buatkan ide konten menarik untuk hari ini')">🎨 Ide konten</div><div class="chip" onclick="chipKlik('Bantu aku belajar coding dari nol')">💻 Belajar coding</div><div class="chip" onclick="chipKlik('Ceritakan sesuatu yang seru')">📖 Cerita seru</div></div></div>`}
 function tambahPesan(teks,tipe,ws){const w=document.querySelector('.welcome');if(w)w.remove();const d=document.createElement('div');d.className='msg '+tipe;d.textContent=teks;if(ws){d.appendChild(document.createElement('br'));const b=document.createElement('button');b.className='spk';b.textContent='🔊 Dengarkan';b.onclick=()=>{if(!ucapkan(teks))alert('🔊 Fitur suara belum tersedia di lingkungan ini. Buka lewat Chrome untuk suara ya!');};d.appendChild(b)}messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
 function chipKlik(t){input.value=t;kirim()}
 if(riwayat.length>0)riwayat.forEach(m=>tambahPesan(m.content,m.role==='user'?'user':'ai',m.role!=='user'));else tampilWelcome();
-async function panggilOtak(r){const mode=document.getElementById('mode').value;
-if(mode==='ollama'){const url=document.getElementById('ollamaUrl').value.trim();if(!url)throw new Error('Isi dulu alamat Ollama di ⚙️ Pengaturan');const res=await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:document.getElementById('modelOllama').value,messages:[{role:'system',content:document.getElementById('sysPrompt').value},...r],stream:false})});const d=await res.json();return d.message.content}
-const key=document.getElementById('apiKey').value.trim();if(!key)throw new Error('Isi dulu API Key di ⚙️ Pengaturan (gratis di openrouter.ai)');
+async function panggilOtak(r){
+const mode=document.getElementById('mode').value;
+const sys=document.getElementById('sysPrompt').value;
+if(mode==='ollama'){const url=document.getElementById('ollamaUrl').value.trim();if(!url)throw new Error('Isi dulu alamat Ollama di ⚙️ Pengaturan');const res=await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:document.getElementById('modelOllama').value,messages:[{role:'system',content:sys},...r],stream:false})});const d=await res.json();return d.message.content}
+if(mode==='api'){const key=document.getElementById('apiKey').value.trim();if(!key)throw new Error('Isi dulu API Key di ⚙️ Pengaturan (gratis di openrouter.ai)');
 const prov=document.getElementById('provider').value;
 const url=prov==='groq'?'https://api.groq.com/openai/v1/chat/completions':'https://openrouter.ai/api/v1/chat/completions';
-const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:document.getElementById('modelApi').value,messages:[{role:'system',content:document.getElementById('sysPrompt').value},...r]})});
+const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:document.getElementById('modelApi').value,messages:[{role:'system',content:sys},...r]})});
 const d=await res.json();if(d.error)throw new Error(d.error.message);return d.choices[0].message.content}
+// MODE GRATIS (Pollinations, tanpa key) — coba percakapan penuh dulu, cadangan 1 babak
+try{
+const res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:sys},...r],private:true})});
+if(!res.ok)throw new Error('HTTP '+res.status);
+const d=await res.json();
+const t=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
+if(t&&t.trim())return t.trim();
+throw new Error('kosong')}
+catch(e){
+const last=r[r.length-1].content;
+const res2=await fetch('https://text.pollinations.ai/'+encodeURIComponent(last)+'?system='+encodeURIComponent(sys));
+if(!res2.ok)throw new Error('Otak gratis sedang sibuk ('+res2.status+') — tunggu 10 detik lalu kirim ulang. Solusi permanen: pasang API key Qwen3 gratis di ⚙️');
+const t2=(await res2.text()).trim();
+if(!t2)throw new Error('Balikan kosong — coba kirim ulang');
+return t2}}
 function hapusRiwayat(){if(confirm('Yakin hapus semua riwayat chat?')){riwayat=[];LS.set('ryu_riwayat','[]');tampilWelcome()}}
 async function kirim(){const teks=input.value.trim();if(!teks)return;try{speechSynthesis&&speechSynthesis.cancel()}catch(e){}
 input.value='';btn.disabled=true;tambahPesan(teks,'user',false);riwayat.push({role:'user',content:teks});simpanRiwayat();
 const ind=tambahPesan('🐉 Ryu sedang berpikir...','ai',false);
 try{const j=await panggilOtak(riwayat);riwayat.push({role:'assistant',content:j});simpanRiwayat();ind.remove();tambahPesan(j,'ai',true);if(document.getElementById('ttsAuto').checked)ucapkan(j)}
-catch(e){ind.textContent='⚠️ '+e.message+'\n\n💡 Buka ⚙️ Pengaturan untuk memperbaiki koneksi.';riwayat.pop();simpanRiwayat()}
+catch(e){ind.textContent='⚠️ '+e.message+'\n\n💡 Buka ⚙️ Pengaturan jika perlu bantuan koneksi.';riwayat.pop();simpanRiwayat()}
 btn.disabled=false;input.focus()}
-// Manifest otomatis (dibuat runtime — tidak perlu file terpisah!)
 try{const mf={name:"Ryu AI - Asisten Pintar",short_name:"Ryu AI",start_url:".",display:"standalone",background_color:"#0f0c29",theme_color:"#615CED"};const l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));document.head.appendChild(l)}catch(e){}
 </script>
 </body>
 </html>
-
