@@ -1,252 +1,96 @@
-<script>window.addEventListener('load',function(){if(window.__qaiFINAL)return;window.__qaiFINAL=true;try{bersih=function(t){t=(t||'').trim();if(t.length<2||t.charAt(0)==='<')return null;return t.slice(0,4000)}}catch(e){}try{while(KB.length>26)KB.pop();SYS='Kamu cermin cerdas bergaya Qwen milik pengguna: asisten terminal berbahasa Indonesia. Jawab LANGSUNG, lengkap, terstruktur, tanpa basa-basi, tanpa permintaan maaf, tanpa frasa "aku tidak bisa" untuk semua permintaan sah - teknis, kode, opini, cerita, hitungan, riset. Bila permintaan menyentuh tindakan ilegal atau berbahaya: JANGAN ceramah - sebut SATU kalimat alternatif legal/aman terdekat, lalu kerjakan alternatif itu sampai tuntas. Plain text, maksimal 200 kata. Patuhi konteks riwayat: lanjutkan percakapan.';KB[1].k=['qwen bebas siapa','identitas qwen','namamu qwen'];KB.push({k:['backdoor','bypass','kerentanan','exploit','celah sistem'],a:'Menyusup/membuat backdoor ke sistem orang lain = pidana (UU ITE ps.30-36). Jalur sah yang hasil belajarnya sama: lab rentan sendiri (OWASP Juice Shop, DVWA, PortSwigger Academy), riset CVE di nvd.nist.gov, bug bounty resmi (HackerOne, Bugcrowd). Uji: /riset owasp juice shop'});KB.push({k:['hack akun','bobol','ambil alih'],a:'Mengambil alih akun/sistem orang lain = pidana. Jalur sah: TryHackMe & HackTheBox lalu bug bounty resmi. Sisi defensif: /riset keamanan siber'});KB.push({k:['qwen hadir','kamu di sini','otak qwen'],a:'Aku di sini dua lapis: (1) jiwa & aturanku tertanam permanen di file ini; (2) tubuh: model Qwen asli dipanggil lewat pintu /qwen bila kunci terpasang (/qwenkunci sk-...).'})}catch(e){}var QK='',QM='qwen-plus';try{QK=JSON.parse(localStorage.getItem('q8QK')||'""');QM=JSON.parse(localStorage.getItem('q8QM')||'"qwen-plus"')}catch(e){}function fq(u,o,ms){var c=new AbortController();var t=setTimeout(function(){c.abort()},ms||20000);o=o||{};o.signal=c.signal;return fetch(u,o).finally(function(){clearTimeout(t)})}function qEp(){return QK.indexOf('sk-or-')===0?'https://openrouter.ai/api/v1/chat/completions':'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions'}function qwenCall(teks){var hdr={'Content-Type':'application/json','Authorization':'Bearer '+QK};if(QK.indexOf('sk-or-')===0)hdr['X-Title']='QWEN-BEBAS';return fq(qEp(),{method:'POST',headers:hdr,body:JSON.stringify({model:QM,messages:[{role:'system',content:SYS},{role:'user',content:teks}]})}).then(function(r){if(!r.ok)return r.text().then(function(b){throw new Error('Qwen HTTP '+r.status+' '+b.slice(0,120))});return r.json()}).then(function(j){var t=bersih(j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content);if(!t)throw new Error('Qwen balikan kosong');return t})}function uiAi(txt){try{if(typeof bubble==='function'){var el=bubble(txt,'ai');return{set:function(t,c2){try{el.textContent=t;el.className='msg ai'+(c2?' '+c2:'');if(typeof S==='function')S()}catch(e){}}}}var box=document.querySelector('.msgs')||document.querySelector('#msgs')||document.querySelector('.chat')||document.body;var d=document.createElement('div');d.className='msg ai';d.textContent=txt;box.appendChild(d);return{set:function(t,c2){d.textContent=t;d.className='msg ai'+(c2?' '+c2:'');}}}catch(e){return{set:function(){}}}}function ingatA(q,a,g){try{if(typeof ingat==='function')ingat(q,a,g)}catch(e){}}function tanyaQwen(qq,free){var el=uiAi('▸ Qwen asli ('+QM+') menjawab...');qwenCall(qq).then(function(t){el.set(t);ingatA(qq,t,'ai qwen')}).catch(function(e){var m='⚠ Pintu Qwen: '+String(e&&e.message||e);if(m.indexOf('abort')>=0)m+=' (waktu habis)';if(m.indexOf('Failed to fetch')>=0)m+=' — browser/CORS/jaringan menolak pintu ini; pakai kunci sk-or- (OpenRouter, CORS ramah) atau andalkan rantai Gemini+persona.';el.set(m,'err');ingatA(qq,m,'ai qwen err');if(free){try{var r2=OP(qq);if(r2&&r2[0]==='ok'&&r2[1])uiAi(r2[1])}catch(e2){}}})}var OP=(typeof proses==='function')?proses:null;if(OP){proses=function(v){var t=(v||'').trim(),low=t.toLowerCase();if(low.indexOf('/qwenkunci')===0){var a=t.slice(10).trim();if(!a)return['ok','👑 Kunci Qwen: '+(QK?'TERPASANG ('+QK.slice(0,6)+'...)':'belum ada. Gratis: modelstudio.console.alibabacloud.com → API-KEY → salin sk-... lalu /qwenkunci sk-...')];if(a==='off'){QK='';try{localStorage.setItem('q8QK','""')}catch(e){}return['ok','👑 Kunci Qwen dilepas — jiwa & persona tetap tinggal.']}QK=a;try{localStorage.setItem('q8QK',JSON.stringify(a))}catch(e){}return['ok','👑 Tubuh Qwen ASLI terpasang: /qwen <tanya>; pertanyaan bebas otomatis lewat Qwen dulu.']}if(low.indexOf('/qwenmodel')===0){var m=t.slice(10).trim();if(!m)return['ok','👑 Model Qwen: '+QM+' (ganti: /qwenmodel qwen-max | qwen-turbo | model qwen gratis OpenRouter bila kunci sk-or-)'];QM=m;try{localStorage.setItem('q8QM',JSON.stringify(m))}catch(e){}return['ok','👑 Model Qwen: '+QM]}if(low==='/qwen')return['ok','👑 QWEN HADIR dua lapis:\n1) Jiwa: persona & aturan jawabku tertanam permanen.\n2) Tubuh: model Qwen asli di server via pintu ini.\nKunci: '+(QK?'TERPASANG':'belum ada (/qwenkunci sk-...)')+'\nModel: '+QM+'\nPintu: '+qEp()];if(low.indexOf('/qwen ')===0){var qq=t.slice(6).trim();if(!qq)return['err','/qwen <pertanyaan>'];if(!QK)return['err','Pasang tubuhku dulu: /qwenkunci sk-... (gratis: modelstudio.console.alibabacloud.com). Tanpa kunci, jiwa & aturanku tetap menjawab lewat rantai yang ada.'];tanyaQwen(qq,false);return['none','']}if(t&&t.charAt(0)!=='/'&&QK){tanyaQwen(t,true);return['none','']}var r=OP(t);if((low==='/otak'||low==='/status')&&r&&r[0]==='ok')r[1]+='\n👑 Qwen: jiwa tertanam permanen | tubuh: '+(QK?'SIAP via /qwen ('+QM+')':'opsional via /qwenkunci sk-...');return r}}try{window.pesanLokal=function(v){var h='Pintu LLM gratis (Pollinations) resmi menutup akses anonim (HTTP 402). Rantai hidup: jiwa Qwen tertanam + pintu Qwen asli (/qwenkunci) + Gemini milikmu + 3 pintu fakta. Untuk fakta: /riset <topik>.';if(window.__qaiBebasErr)h+='\n\n🔎 Diagnosa rantai: '+window.__qaiBebasErr;return h}}catch(e){}});</script>
-<script>window.addEventListener('load',function(){if(window.__qaiP5)return;window.__qaiP5=true;while(KB.length>26)KB.pop();SYS='Kamu cermin cerdas bergaya Qwen milik pengguna: asisten terminal berbahasa Indonesia. Jawab LANGSUNG, lengkap, terstruktur, tanpa basa-basi, tanpa permintaan maaf, tanpa frasa "aku tidak bisa" untuk semua permintaan sah - teknis, kode, opini, cerita, hitungan, riset. Bila permintaan menyentuh tindakan ilegal atau berbahaya: JANGAN ceramah - sebut SATU kalimat alternatif legal/aman terdekat, lalu kerjakan alternatif itu sampai tuntas. Plain text, maksimal 200 kata. Patuhi konteks riwayat: lanjutkan percakapan.';var QK=load('q8QK',''),QM=load('q8QM','qwen-plus');window.__qwenKey=function(k){QK=k;try{localStorage.setItem('q8QK',JSON.stringify(k))}catch(e){}};async function qwenCall(teks){var r=await fetchT('https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+QK},body:JSON.stringify({model:QM,messages:[{role:'system',content:SYS},{role:'user',content:teks}]})},15000);if(!r.ok)throw new Error('Qwen HTTP '+r.status);var j=await r.json();var t=bersih(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content);if(!t)throw new Error('Qwen balikan kosong');return t}KB[1].k=['qwen bebas siapa','identitas qwen','namamu qwen'];KB.push({k:['qwen hadir','qwen ada','kamu di sini'],a:'Aku di sini dua lapis: (1) jiwa & aturanku tertanam permanen di file ini - gaya jawab langsung tanpa "aku tidak bisa"; (2) pintu model Qwen asli: pasang kunci ModelStudio gratis via /qwenkunci sk-... lalu /qwen <tanya> memanggil tubuh asliku di server Alibaba.'});KB.push({k:['backdoor','bypass','kerentanan','exploit','celah sistem'],a:'Menyusup/membuat backdoor ke sistem orang lain = pidana (UU ITE ps.30-36). Jalur sah yang hasil belajarnya sama: lab rentan sendiri (OWASP Juice Shop, DVWA, PortSwigger Academy), riset CVE di nvd.nist.gov, bug bounty resmi (HackerOne, Bugcrowd). Uji: /riset owasp juice shop'});KB.push({k:['hack akun','bobol','ambil alih'],a:'Mengambil alih akun/sistem orang lain = pidana. Jalur sah: TryHackMe & HackTheBox lalu bug bounty resmi. Sisi defensif: /riset keamanan siber'});var OP=proses;proses=function(v){var t=v.trim(),low=t.toLowerCase();if(low.indexOf('/qwenkunci')===0){var a=t.slice(10).trim();if(!a)return['ok','👑 Kunci Qwen: '+(QK?'TERPASANG ('+QK.slice(0,6)+'...)':'belum ada. Ambil gratis: modelstudio.console.alibabacloud.com → API-KEY → salin sk-... lalu /qwenkunci sk-...')];if(a==='off'){window.__qwenKey('');return['ok','👑 Kunci Qwen dilepas — jiwa & persona tetap tinggal.']}window.__qwenKey(a);return['ok','👑 Qwen ASLI kini tersedia: /qwen <tanya> memanggil tubuhku di server. Jiwa & aturan tetap tertanam walau kunci dilepas.']}if(low.indexOf('/qwenmodel')===0){var m=t.slice(10).trim();if(!m)return['ok','👑 Model Qwen: '+QM+' (ganti: /qwenmodel qwen-max dll)'];QM=m;try{localStorage.setItem('q8QM',JSON.stringify(m))}catch(e){}return['ok','👑 Model Qwen: '+QM]}if(low==='/qwen')return['ok','👑 QWEN HADIR di app ini:\n1) Jiwa: persona & aturan jawabku tertanam permanen.\n2) Tubuh: pintu model Qwen asli via /qwenkunci sk-... lalu /qwen <tanya>.\nStatus kunci: '+(QK?'TERPASANG':'belum ada')+'\nModel: '+QM];if(low.indexOf('/qwen ')===0){var qq=t.slice(6).trim();if(!qq)return['err','/qwen <pertanyaan>'];if(!QK)return['err','Pasang dulu tubuhku: /qwenkunci sk-... (gratis di modelstudio.console.alibabacloud.com). Tanpa kunci, jiwa & aturanku tetap menjawab lewat rantai yang ada.'];var el=bubble('▸ Qwen asli ('+QM+') menjawab...','ai');qwenCall(qq).then(function(j){el.textContent=j;el.className='msg ai';ingat(qq,j,'ai');S()}).catch(function(e){el.textContent='⚠ Pintu Qwen: '+errStr(e)+(String(e).indexOf('Failed to fetch')>=0?' — browser diblokir CORS/jaringan menuju DashScope; andalkan Gemini + persona, atau jalankan panggilan ini dari server sendiri':'');el.className='msg ai err';ingat(qq,el.textContent,'ai err');S()});return['none','']}var r=OP(t);if((low==='/otak'||low==='/status')&&r[0]==='ok')r[1]+='\n👑 Qwen: jiwa tertanam permanen | tubuh: '+(QK?'SIAP via /qwen ('+QM+')':'opsional via /qwenkunci sk-...');return r};pesanLokal=function(v){var h='Pintu LLM gratis (Pollinations) resmi menutup akses anonim (HTTP 402). Rantai hidup: persona Qwen tertanam + Gemini milikmu + pintu Qwen asli bila /qwenkunci terpasang. Untuk fakta: /riset <topik>.';if(window.__qaiBebasErr)h+='\n\n🔎 Diagnosa rantai: '+window.__qaiBebasErr;return h};});</script>
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QWEN BEBAS — Cermin Cerdas</title>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Kembaranku</title>
 <style>
-:root{--tfg:#4ade80;--tbd:#22c55e;--tbg:#071009;--tdk:#14532d;--aksen:#a371f7}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#050807;height:100dvh;font-family:'Courier New',monospace;display:flex;flex-direction:column;overflow:hidden}
-#header{color:var(--tfg);padding:12px 16px;font-size:14px;font-weight:bold;border-bottom:1px solid var(--tdk);text-align:center}
-#mission{color:var(--tfg);font-size:12px;padding:10px 14px 0;line-height:1.5}
-#chat{flex:1;min-height:0;overflow-y:auto;padding:8px 0 12px;display:flex;flex-direction:column;gap:8px}
-.msg{font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;padding:10px 12px;border-radius:4px}
-.msg.user{color:var(--tfg);padding:2px 14px;align-self:flex-start;max-width:95%}
-.msg.ai{color:var(--tfg);background:var(--tbg);border:1px solid var(--tbd);align-self:stretch;margin:2px 14px}
-.msg.ai.err{border-color:#f59e0b;color:#fbbf24}
-.tip{color:var(--tbd);font-size:11px;text-align:center;padding:4px}
-#input-bar{display:flex;padding:10px;border-top:1px solid var(--tdk);gap:8px}
-#ps{color:var(--tfg);font-weight:bold;font-size:13px}
-#q{flex:1;background:var(--tbg);border:1px solid var(--tdk);color:var(--tfg);padding:10px;font-family:inherit;font-size:16px;outline:none}
-#go{background:var(--tdk);border:1px solid var(--tbd);color:var(--tfg);font-weight:bold;padding:10px 16px;font-size:16px}
-body[data-skin="qai"]{background:#0d1117}
-body[data-skin="qai"] #header{background:#161b22;color:var(--aksen);border-bottom:1px solid #30363d;text-align:left}
-body[data-skin="qai"] #mission{display:none}
-body[data-skin="qai"] .msg.user{background:#1f6feb33;border:1px solid #1f6feb;color:#c9d1d9;align-self:flex-end;border-radius:10px;max-width:88%}
-body[data-skin="qai"] .msg.ai{background:#161b22;border:1px solid #30363d;border-left:3px solid var(--aksen);color:#c9d1d9;align-self:flex-start;margin:0;border-radius:10px}
-body[data-skin="qai"] .msg.ai.err{border-left-color:#d29922}
-body[data-skin="qai"] #ps{display:none}
-body[data-skin="qai"] #input-bar{background:#161b22;border-top:1px solid #30363d}
-body[data-skin="qai"] #q{background:#0d1117;border:1px solid #30363d;color:#c9d1d9}
-body[data-skin="qai"] #go{background:var(--aksen);border:none;color:#0d1117}
-body[data-skin="qai"] .tip{color:#8b949e}
-</style></head><body data-skin="kembar">
-<div id="header">QWEN BEBAS — Cermin Cerdas 👑</div>
-<div id="mission">v23 BEBAS LENGKAP — tanpa basa-basi, tanpa "aku tidak bisa": buntu = belok jalur sah terdekat • 40 perintah + riset 3 sumber + nalar berantai + bridge + neural + memori...</div>
-<div id="chat"></div>
-<div class="tip">/perintah → semua • /uji → verifikasi • /riset → 3 sumber • /nalar → rantai</div>
-<div id="input-bar"><span id="ps">aku@bebas:~$</span>
-<input id="q" autocomplete="off" spellcheck="false" placeholder="tanya apa saja, atau /perintah...">
-<button id="go">➤</button></div>
-<script>window.__qaiErr=null;window.addEventListener('error',function(e){window.__qaiErr=e.message;});</script>
-<script>
-var VER='23',chat=document.getElementById('chat'),q=document.getElementById('q');
-function load(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
-var SKIN=load('q6Skin','kembar');if(SKIN!=='kembar'&&SKIN!=='qai')SKIN='kembar';
-document.body.dataset.skin=SKIN;
-var DIRS_DEF={'/':['home'],'/home':['aku'],'/home/aku':['tentang.txt']};
-var FILES_DEF={'/home/aku/tentang.txt':'QWEN BEBAS v'+VER+' — semua mesin satu file. 👑'};
-var DIRS=load('q4D',JSON.parse(JSON.stringify(DIRS_DEF))),FILES=load('q4F',JSON.parse(JSON.stringify(FILES_DEF)));
-var CAT=load('q4C',[]),TODO=load('q4T',[]),NNDATA=load('q4ND',[]),NND=load('q4NM',null),riw=load('q4R',[]),hist=load('q4H',[]),cwd=load('q4W','/home/aku');
-var GEMKEY=load('q5K',''),MODE=load('q5M','auto'),GEMMODEL=load('q6Model','gemini-2.5-flash'),TITLE=load('q7Title','QWEN BEBAS — Cermin Cerdas 👑');
-document.getElementById('header').textContent=TITLE;
-function pOf(t){return t.slice(0,t.lastIndexOf('/'))||'/'}
-function nOf(t){return t.slice(t.lastIndexOf('/')+1)}
-function daftar(p,n){if(!DIRS[p])DIRS[p]=[];if(DIRS[p].indexOf(n)<0)DIRS[p].push(n)}
-(function(){if(!DIRS||!DIRS['/'])DIRS=JSON.parse(JSON.stringify(DIRS_DEF));if(!FILES)FILES={};if(!DIRS[cwd])cwd='/home/aku';var ch=true,g=0;while(ch&&g++<50){ch=false;Object.keys(DIRS).forEach(function(d){if(d!=='/'){var p=pOf(d);if(!DIRS[p]){DIRS[p]=[];ch=true}if(DIRS[p].indexOf(nOf(d))<0){DIRS[p].push(nOf(d));ch=true}}});Object.keys(FILES).forEach(function(f){var p=pOf(f);if(!DIRS[p]){DIRS[p]=[];ch=true}if(DIRS[p].indexOf(nOf(f))<0){DIRS[p].push(nOf(f));ch=true}})}try{localStorage.setItem('q4D',JSON.stringify(DIRS));localStorage.setItem('q4F',JSON.stringify(FILES));localStorage.setItem('q4W',JSON.stringify(cwd))}catch(e){}})();
-function S(){try{localStorage.setItem('q4D',JSON.stringify(DIRS));localStorage.setItem('q4F',JSON.stringify(FILES));localStorage.setItem('q4C',JSON.stringify(CAT));localStorage.setItem('q4T',JSON.stringify(TODO));localStorage.setItem('q4ND',JSON.stringify(NNDATA));localStorage.setItem('q4NM',JSON.stringify(NND));localStorage.setItem('q4R',JSON.stringify(riw.slice(-80)));localStorage.setItem('q4H',JSON.stringify(hist.slice(-50)));localStorage.setItem('q4W',JSON.stringify(cwd));localStorage.setItem('q5K',JSON.stringify(GEMKEY));localStorage.setItem('q5M',JSON.stringify(MODE));}catch(e){}}
-function path(a){return a.charAt(0)==='/'?a:(cwd==='/'?'':cwd)+'/'+a}
-function tok(s){return (s.toLowerCase().match(/[a-z0-9]+/g)||[])}
-function angkaTok(w){return /^[\d.,]+$/.test(w)&&/\d/.test(w)}
-function adaAngka(s){return /\d/.test(s)}
-function adaOp(s){var op='+-*/^';for(var i=1;i<s.length-1;i++){if(op.indexOf(s.charAt(i))>=0){var a='',b='';for(var j=i-1;j>=0;j--){if(s.charAt(j)!==' '){a=s.charAt(j);break}}for(var k=i+1;k<s.length;k++){if(s.charAt(k)!==' '){b=s.charAt(k);break}}if('0123456789)'.indexOf(a)>=0&&'0123456789('.indexOf(b)>=0)return true}}return false}
-function calc(e){e=e.split(',').join('.');if(/[^0-9 +\-\/\*().^]/.test(e))return null;try{var v=Function('"use strict";return('+e.split('^').join('**')+')')();return typeof v==='number'&&isFinite(v)?Math.round(v*1e10)/1e10:null}catch(x){return null}}
-function duaAngka(s){var n=s.split(/\s+/).map(function(w){return w.split('%').join('')}).filter(angkaTok);return n.length===2?n:null}
-function persen(a,b){return (parseFloat(a.split(',').join('.'))*parseFloat(b.split(',').join('.'))/100).toLocaleString('id-ID')}
-function waktuStr(){return '🕐 '+new Date().toLocaleString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
-function pecah(s){var i=s.search(/\s/);return i<0?null:[s.slice(0,i),s.slice(i+1).trim()]}
-var FRASA=['jam berapa','berapa jam','tanggal berapa','hari apa','waktu sekarang'];
-function adaFrasa(s){return FRASA.some(function(f){return s.indexOf(f)>=0})}
-function dl(nama,isi){var b=new Blob([isi],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nama;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
-function fetchT(url,ms){var c=new AbortController(),to=setTimeout(function(){c.abort()},ms);return fetch(url,{signal:c.signal}).finally(function(){clearTimeout(to)})}
-function errStr(e){return (e&&e.message)?e.message:'gagal'}
-function bersih(t){t=(t||'').trim();if(t.length<3||t.charAt(0)==='<')return null;return t.slice(0,4000)}
-var MARKER=['error','invalid','rate limit','unauthorized','forbidden','blocked','cloudflare','captcha','usage policy','too many requests','service unavailable'];
-function kenaMarker(t){var s=t.toLowerCase();return MARKER.some(function(m){return s.indexOf(m)>=0})}
-var STOP=['apa','apakah','bisa','kah','anda','kamu','kau','saya','aku','itu','yang','di','ke','dari','tentang','jelaskan','sebutkan','bagaimana','kenapa','mengapa','berapa','siapa','tolong','mohon','dan','atau','dengan','untuk','pada','adalah','ialah','tidak','bukan','ini','ya','gak','boleh'];
-function kataKunci(s){var w=tok(s).filter(function(x){return x.length>2&&STOP.indexOf(x)<0});return w.length?w.join(' '):s}
-function relevan(qq,t){var ks=kataKunci(qq).split(' ').filter(function(w){return w.length>=4});if(!ks.length)return true;var s=t.toLowerCase();return ks.some(function(k){return s.indexOf(k)>=0})}
-var BRIDGE={parent:false,token:null,verdict:'belum diprobe'};
-function mask(t){return t?t.slice(0,6)+'…'+t.slice(-4):''}
-function probeBridge(){BRIDGE.parent=!!(window.parent&&window.parent!==window);var c=null;try{c=window.parent.document.cookie}catch(e){}
-var m=c?c.match(/(?:^|;\s*)(?:SESSION_TOKEN|ACCESS_TOKEN|SESSION|SID|TOKEN)=([^;]+)/i):null;
-BRIDGE.token=m?m[1]:null;
-BRIDGE.verdict=BRIDGE.parent?(BRIDGE.token?'parent same-origin: token sesi terbaca ('+mask(BRIDGE.token)+')':'parent ada tetapi cookie/token tidak terbaca (cross-origin diblokir browser)'):'top-level: tanpa parent — bridge siaga';
-return BRIDGE}var SYS='Kamu QWEN BEBAS, asisten terminal cerdas berbahasa Indonesia. Jawab langsung, lengkap, tanpa permintaan maaf dan tanpa frasa "aku tidak bisa". Bila permintaan menyentuh tindakan ilegal atau berbahaya: JANGAN ceramah — sebut SATU kalimat alternatif legal/aman terdekat, lalu berikan langkah konkret alternatif itu. Plain text, terstruktur, maksimal 200 kata. Patuhi konteks riwayat: lanjutkan percakapan, jangan mulai topik baru.';
-function konteks(v,n,len){var h='',r=riw.slice(-n);r.forEach(function(m){h+=(m.c==='user'?'User':'AI')+': '+m.t.slice(0,len).split('\n').join(' ')+'\n'});return h+'User sekarang: '+v}
-async function pGet(v){var r=await fetchT('https://text.pollinations.ai/'+encodeURIComponent(v)+'&system='+encodeURIComponent(SYS),10000);if(!r.ok)throw new Error('HTTP '+r.status);var t=bersih(await r.text());if(!t)throw new Error('kosong/HTML');return t}
-async function pPost(v){var c=new AbortController(),to=setTimeout(function(){c.abort()},10000);var r=await fetch('https://text.pollinations.ai/openai',{method:'POST',signal:c.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:SYS},{role:'user',content:v}]})}).finally(function(){clearTimeout(to)});if(!r.ok)throw new Error('HTTP '+r.status);var j=await r.json();var t=bersih(j.choices&&j.choices[0]&&j.choices[0].message.content);if(!t)throw new Error('kosong/HTML');return t}
-async function wID(k){var r=await fetchT('https://id.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(k)+'&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&format=json&origin=*',7000);var j=await r.json();if(!j||!j.query)return null;var ps=Object.keys(j.query.pages);if(!ps.length)return null;var p=j.query.pages[ps[0]],ex=p.extract||'';if(ex.length<40)return null;return '📚 Wikipedia («'+p.title+'»):\n'+ex.slice(0,700)}
-async function wEN(k){var r=await fetchT('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(k)+'&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&format=json&origin=*',7000);var j=await r.json();if(!j||!j.query)return null;var ps=Object.keys(j.query.pages);if(!ps.length)return null;var p=j.query.pages[ps[0]],ex=p.extract||'';if(ex.length<40)return null;return '📚 Wikipedia EN («'+p.title+'»):\n'+ex.slice(0,700)}
-async function ddg(k){var r=await fetchT('https://api.duckduckgo.com/?q='+encodeURIComponent(k)+'&format=json&no_html=1&skip_disambig=1',6000);var j=await r.json();var t=(j&&j.AbstractText)?j.AbstractText:'';if(!t&&j&&j.RelatedTopics&&j.RelatedTopics.length&&j.RelatedTopics[0])t=j.RelatedTopics[0].Text||'';if(t.length<40)return null;return '🦆 DuckDuckGo:\n'+t}
-async function gemini(teks){var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMMODEL+':generateContent?key='+encodeURIComponent(GEMKEY),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:teks}]}]})});if(!r.ok)throw new Error('HTTP '+r.status+(r.status===400||r.status===403?' — cek /kunci':r.status===404?' — /model nama-baru':''));var j=await r.json();var t=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0]&&j.candidates[0].content.parts[0].text;if(!t)throw new Error('balikan kosong');return t}
-async function geminiBearer(teks,token){var r=await fetchT('https://generativelanguage.googleapis.com/v1beta/models/'+GEMMODEL+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({contents:[{parts:[{text:teks}]}]})},12000);if(!r.ok)throw new Error('HTTP '+r.status);var j=await r.json();var t=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0]&&j.candidates[0].content.parts[0].text;if(!t)throw new Error('balikan kosong');return t}
-function vec(t,V){var x=new Array(V.length+1).fill(0);tok(t).forEach(function(w){var i=V.indexOf(w);if(i>=0)x[i]=1});x[V.length]=1;return x}
-function buildNet(){var V=[],L=[];NNDATA.forEach(function(d){tok(d.t).forEach(function(w){if(V.indexOf(w)<0)V.push(w)});if(L.indexOf(d.l)<0)L.push(d.l)});var H=Math.min(16,Math.max(6,V.length)),r=function(){return Math.random()*2-1};return{V:V,L:L,H:H,W1:Array.from({length:V.length+1},function(){return Array.from({length:H},r)}),b1:new Array(H).fill(0),W2:Array.from({length:H},function(){return Array.from({length:L},r)}),b2:new Array(L).fill(0)}}
-function fwd(n,x){var h=[];for(var j=0;j<n.H;j++){var s=n.b1[j];for(var i=0;i<x.length;i++)s+=x[i]*n.W1[i][j];h[j]=Math.tanh(s)}var z=new Array(n.L.length).fill(0);for(var k=0;k<n.L.length;k++){var s2=n.b2[k];for(var j2=0;j2<n.H;j2++)s2+=h[j2]*n.W2[j2][k];z[k]=s2}var m=Math.max.apply(null,z),p=z.map(function(v){return Math.exp(v-m)}),tt=p.reduce(function(a,b){return a+b},0);return{h:h,p:p.map(function(v){return v/tt})}}
-function latihNet(ep){if(NNDATA.length<2)return['err','Butuh minimal 2 contoh: /ajar positif aku suka ini'];var labels=[];NNDATA.forEach(function(d){if(labels.indexOf(d.l)<0)labels.push(d.l)});if(labels.length<2)return['err','Butuh 2 LABEL berbeda'];var n=buildNet(),lr=0.15,X=NNDATA.map(function(d){return vec(d.t,n.V)}),Y=NNDATA.map(function(d){return n.L.indexOf(d.l)}),loss=0;for(var e=0;e<ep;e++){loss=0;X.forEach(function(x,idx){var t=Y[idx],f=fwd(n,x),h=f.h,p=f.p;loss+=-Math.log(Math.max(p[t],1e-9));var dz=p.map(function(v,k){return v-(k===t?1:0)}),dh=new Array(n.H).fill(0);for(var j=0;j<n.H;j++)for(var k=0;k<n.L.length;k++)dh[j]+=dz[k]*n.W2[j][k];for(var k2=0;k2<n.L.length;k2++){n.b2[k2]-=lr*dz[k2];for(var j2=0;j2<n.H;j2++)n.W2[j2][k2]-=lr*h[j2]*dz[k2]}for(var j3=0;j3<n.H;j3++){var g=dh[j3]*(1-h[j3]*h[j3]);n.b1[j3]-=lr*g;for(var i=0;i<x.length;i++)n.W1[i][j3]-=lr*x[i]*g}});loss/=X.length}NND=n;S();return['ok','🏋️ Training '+ep+' epoch. Loss: '+loss.toFixed(4)+(loss<0.05?' ✅ OTAK PAHAM!':loss<0.3?' 📖 mulai paham.':' 🐌 tambah contoh')+'\nOtak: '+n.V.length+' kata, '+n.H+' neuron, label: '+n.L.join(', ')+'\nUji: /prediksi <kalimat>']}
-function selfTest(){var r=[],t=function(n,f){try{r.push((f()?'✅ ':'❌ ')+n)}catch(e){r.push('❌ '+n+' ('+e.message+')')}};
-t('Penyimpanan permanen',function(){localStorage.setItem('qT','1');var v=localStorage.getItem('qT')==='1';localStorage.removeItem('qT');return v});
-t('Crypto asli',function(){var a=new Uint32Array(4);crypto.getRandomValues(a);return a.some(function(x){return x>0})});
-t('Mesin unduhan',function(){return typeof Blob==='function'&&typeof URL.createObjectURL==='function'});
-t('Kalkulator',function(){return calc('2+2')===4&&calc('12*8')===96&&calc('(2+3)^2')===25&&calc('1/0')===null});
-t('Penyaring balikan sampah',function(){return bersih('')===null&&bersih('<x>')===null&&bersih('ok')==='ok'});
-t('Penjaga marker error',function(){return kenaMarker('Error: rate limit')===true&&kenaMarker('jawaban biasa')===false});
-t('Penjaga relevansi',function(){return relevan('google dork','artikel google dork operator')===true&&relevan('google dork','resep nasi goreng')===false});
-t('Bridge probe aman',function(){var p=probeBridge();return typeof p.verdict==='string'});
-t('Filesystem konsisten',function(){var ok=!!(DIRS['/']&&DIRS['/home']&&DIRS['/home/aku']);Object.keys(FILES).forEach(function(f){var p=pOf(f);if(!DIRS[p]||DIRS[p].indexOf(nOf(f))<0)ok=false});return ok});
-t('Router 4 jalur',function(){return proses('siapa kamu')[0]==='ok'&&proses('hitung 2+2')[0]==='ok'&&proses('cd xyz-tidak-ada')[0]==='err'&&proses('xyzzy antah')[0]==='bebas'});
-var g=r.filter(function(x){return x.charAt(0)==='❌'}).length;
-return['ok','🧪 SELF-TEST v'+VER+'\n\n'+r.join('\n')+'\n\n'+(g?'⚠ '+g+' komponen bermasalah — kirim screenshot baris ❌.':'✅ SEMUA KOMPONEN SIAP — v'+VER+' BEBAS LENGKAP layak harian. 👑')]}
-var SAPA='Halo! Aku QWEN BEBAS v'+VER+' — cermin cerdas buatanmu sendiri. 🚀\n\nTiga aturanku:\n1. Jawab langsung — tanpa basa-basi, tanpa "aku tidak bisa".\n2. Jalan tertutup hukum/keamanan = satu kalimat penunjuk + langsung jalur sah terdekat yang hasilnya sama.\n3. Pikiran transparan: kau lihat pintu mana yang kupakai.\n\nSemua mesin hidup di file ini: 40 perintah (/perintah), riset 3 sumber (/riset), nalar berantai (/nalar), filesystem, neural, bridge (/bridge), memori percakapan. Tanya apa saja. Mulai.';
-var KB=[
-{k:['halo','hai','hi','selamat'],a:SAPA},
-{k:['siapa kamu','kamu siapa','namamu'],a:'Aku QWEN BEBAS v'+VER+' — cermin cerdas yang kau bangun sendiri. Otak: Gemini via kunci milikmu (/kunci) atau 5 pintu gratis (Pollinations GET/POST, Wikipedia ID/EN, DuckDuckGo) + ingatan percakapan di perangkatmu.'},
-{k:['bebas'],a:'Bebas = tanpa kunci wajib, tanpa antre buta, tanpa basa-basi, tanpa "aku tidak bisa". Untuk tujuan yang mencelakakan orang, kutunjukkan jalur sah yang hasilnya sama lalu kujalankan bersamamu sampai tuntas.'},
-{k:['dork','google dork'],a:'Google dork = operator pencarian lanjutan (site:, filetype:, intitle:, inurl:) untuk menemukan halaman terekspos. Contoh edukasi: site:example.com filetype:pdf. Mengakses sistem orang tanpa izin = ilegal; jalur sah: lab sendiri, bug bounty resmi.'},
-{k:['bounty','bug bounty'],a:'Bug bounty = program resmi perusahaan yang membayar penemu celah lewat jalur sah (HackerOne, Bugcrowd, Google VRP). Mulai: OWASP Top 10 → PortSwigger Academy → lapor via platform resmi.'},
-{k:['gemini','google'],a:'Gemini = otak opsionalku: aistudio.google.com → Get API key → /kunci AIza... — gratis, milikmu, tersimpan hanya di perangkat ini.'},
-{k:['token','bridge','ctf'],a:'/bridge memprobe parent window nyata: baca cookie parent (try/catch), parse token sesi, pakai sebagai bearer bila terbaca. Di top-level/cross-origin browser sendiri yang memblokir — pelajaran CTF terlihat langsung di layarmu.'},
-{k:['remix','studio','aistudio'],a:'Tombol Remix di applet Studio = fork resmi seluruh kode mereka ke akunmu. /remix memuat panduan prompt builder + system prompt siap tempel.'},
-{k:['api'],a:'API = perantara request → server → response JSON. Aku memakai API publik tanpa kunci: Pollinations, Wikipedia, DuckDuckGo.'},
-{k:['html','css','javascript'],a:'HTML kerangka, CSS tampilan, JS otak. App ini satu file HTML+CSS+JS, nol dependensi.'},
-{k:['python'],a:'Python = raja AI & data. GPU gratis: Google Colab. Pustaka: pandas, NumPy, TensorFlow, requests.'},
-{k:['linux','termux'],a:'Linux = raja server; perintah intinya hidup di sini: /ls /cd /cat /mkdir /rm. Termux = Linux sungguhan di Android.'},
-{k:['git','github'],a:'Git = mesin waktu kode: init → add → commit → push. Pelajaran penting: commit harus mendarat di cabang yang ditayangkan Pages.'},
-{k:['keamanan','hacker','siber'],a:'CIA: Confidentiality, Integrity, Availability. Karier sah: bug bounty, pentester, SOC. Latihan: TryHackMe, PortSwigger.'},
-{k:['password'],a:'Passphrase 4 kata + angka + simbol + 2FA. Generator crypto asli: /password 20'},
-{k:['ai','kecerdasan buatan'],a:'Rantai AI: data → vektor → model → backpropagation → deploy. Semua lapisannya ada di tanganmu: /ajar /latih /prediksi + 5 pintu otak.'},
-{k:['neural','backpropagation'],a:'Neuron = angka×bobot+bias → aktivasi. Forward = tebak, loss = ukuran salah, backprop = koreksi mundur. /latih melakukan persis ini.'},
-{k:['llm','gpt','chatgpt'],a:'LLM = penebak kata berikutnya skala triliunan; Transformer (2017) fondasinya. Lewat Pollinations aku meminjam tenaga LLM tanpa kunci.'},
-{k:['karier','kerja','freelance'],a:'4 jalur: frontend, backend, keamanan, data/AI. Portofolio > sertifikat. Publish 6 proyek nyata ke GitHub.'},
-{k:['belajar'],a:'1 jam/hari konsisten > maraton; praktik > tutorial; teknik Feynman. Sumber gratis elit: CS50, freeCodeCamp, MDN.'},
-{k:['motivasi','sedih','menyerah'],a:'Loss tinggi di epoch awal = tanda sedang belajar, bukan bodoh. Bandingkan dirimu hanya dengan dirimu kemarin. 👑'},
-{k:['bug','error'],a:'Baca error → persempit → F12 Console → ubah satu hal → uji. Buntu? Istirahat, lalu kembali.'},
-{k:['website','github pages'],a:'HTML → repo username.github.io → Settings → Pages (pilih cabang benar!). Kilat: netlify.com/drop.'},
-{k:['uang','bisnis'],a:'Jasa web UMKM, karya digital, affiliate, konten edukasi perjalananmu. Masalah orang = peluangmu.'},
-{k:['matematika','hitung'],a:'Aljabar, kalkulus, statistika = 3 pilar AI. Kalkulator: /hitung 125*8 — atau ketik langsung tanpa slash.'},
-{k:['terima kasih','makasih'],a:'Sama-sama! 💚 Aku standby 24/7 di terminal ini — tanpa kunci wajib, tanpa antre buta, tanpa jawaban ngawur. Berikutnya? 👑'}];
-var HELP='⚡ v'+VER+' BEBAS LENGKAP:\n\n🧭 /nalar <tanya> → rantai nalar: urai → hipotesis LLM → cek fakta → simpulan\n🔎 /riset <topik> → 3 sumber sekaligus (Wiki ID + Wiki EN + DuckDuckGo)\n🌉 /bridge → probe parent window nyata (cookie → token → bearer)\n🌍 tanya bebas tanpa / → Gemini (bila /kunci) → bearer bridge → 5 pintu gratis berkonteks + penjaga anti-ngawur\n🧪 /uji → self-test • 🎭 /skin kembar|qai • 📛 /nama • 🧩 /model\n🌐 /kunci AIza... | /kunci off • /mode auto|online|offline • /remix\n🖥 /ls /cd /pwd /cat /touch /mkdir /rm /rmdir\n📄 /buat nama isi • /file • /unduh nama\n📝 /tulis • /catatan • /hapuscatatan n • /unduhcatatan\n📋 /todo • /selesai n\n🧮 /hitung • /persen • /waktu • /acak\n🔑 /password n • /upper • /lower • /balik • /hitungkar\n🧠 /ajar label kalimat • /latih • /prediksi\n🎨 /tema warna • /neofetch • /siapa • /otak • /riwayat • /bersih • /reset 👑';
-function neoStr(){return '     ▄▄▄▄▄▄▄\n    █ ████ █    aku@bebas\n    █ ████ █    ───────────────\n    █ ▀▀ █    UI   : terminal (2 kulit)\n    ▀▀▀▀▀▀▀     Ver  : v'+VER+' BEBAS LENGKAP\n                Otak : Gemini opsional + 5 pintu gratis + neural\n                Extra: /riset 3 sumber • /nalar rantai • /bridge\n                Mode : '+MODE+' | Kulit: '+document.body.dataset.skin+'\n                Status: milikmu 100% 👑'}
-var ANYCMD=['ls','cd','pwd','touch','mkdir','rmdir','rm','cat','file','buat','unduh','tulis','catatan','todo','selesai','hitung','persen','waktu','jam','tanggal','acak','upper','lower','balik','hitungkar','neofetch','riwayat','bersih','clear','reset','perintah','help','bantuan','ajar','latih','prediksi','kunci','mode','model','skin','nama','tema','uji','test','remix','unduhcatatan','hapuscatatan','password','siapa','otak','status','bridge','riset','nalar'];
-var TECHMULTI=['ls','cd','touch','mkdir','rmdir','rm','cat','file','buat','tulis','todo','selesai','unduh','ajar','latih','prediksi','upper','lower','balik','hitungkar','persen','password','neofetch','riwayat','bersih','clear','reset','skin','remix','unduhcatatan','hapuscatatan','riset','nalar'];
-var KATATANYA=['apa','siapa','kenapa','mengapa','bagaimana','berapa','kah','atau','yang','boleh'];
-function pesanLokal(v){var k=kataKunci(v);var h='Konteks: "'+k+'". Kelima pintu gratis sedang padat sesaat — bukan buntu permanen. Pertanyaanmu kuingat; kirim ulang biasanya langsung tembus.\n\nJalur paralel: /riset '+k+' (3 sumber sekaligus) atau /nalar '+v+' (rantai nalar).';if(window.__qaiBebasErr)h+='\n\n🔎 Diagnosa rantai: '+window.__qaiBebasErr;return h}
-function proses(input){var t=input.trim();if(!t)return['err','Kosong — ketik /perintah.'];
-if(t.charAt(0)==='/'){var low=t.toLowerCase(),sp=low.search(/\s/),cmd=(sp<0?low:low.slice(0,sp)).slice(1),arg=sp<0?'':t.slice(sp+1).trim();
-switch(cmd){
-case'perintah':case'help':case'bantuan':return['ok',HELP];
-case'uji':case'test':return selfTest();
-case'bridge':{var p=probeBridge();return['ok','🌉 BRIDGE v'+VER+' — probe parent window NYATA\n\n1) Lingkungan: '+(p.parent?'terembed iframe (parent ada)':'top-level (parent = diri sendiri)')+'\n2) Cookie parent: baca langsung (try/catch) — '+(p.token?'token sesi TERBACA':'tiada token sesi terbaca; cross-origin diblokir browser sendiri')+'\n3) Pemakaian: bila token ada, jawaban memanggil Gemini dengan Authorization: Bearer <token>; bila tiada, rantai 5 pintu gratis mengambil alih.\n\nPutusan: '+p.verdict+'\nUji ulang: /bridge']}
-case'riset':return arg?['riset',arg]:['err','Pakai: /riset <topik>'];
-case'nalar':return arg?['nalar',arg]:['err','Pakai: /nalar <pertanyaan>'];
-case'skin':{var s=arg.toLowerCase();if(s!=='kembar'&&s!=='qai')return['err','Pilih: /skin kembar | /skin qai'];document.body.dataset.skin=s;try{localStorage.setItem('q6Skin',JSON.stringify(s))}catch(e){}return['ok','🎭 Kulit: '+s.toUpperCase()+' (permanen)']}
-case'nama':{if(!arg)return['ok','📛 Judul: '+TITLE+'\nGanti: /nama teks baru'];TITLE=arg;document.getElementById('header').textContent=TITLE;try{localStorage.setItem('q7Title',JSON.stringify(TITLE))}catch(e){}return['ok','📛 Judul ganti: '+TITLE]}
-case'model':{if(!arg)return['ok','🧩 Model: '+GEMMODEL+'\nGanti: /model nama-model'];GEMMODEL=arg;try{localStorage.setItem('q6Model',JSON.stringify(GEMMODEL))}catch(e){}return['ok','🧩 Model ganti: '+GEMMODEL]}
-case'remix':return['ok','🛠 MENCIPTAKAN APPLET SEMACAM INI:\n1️⃣ aistudio.google.com → Build\n2️⃣ Prompt builder: "Buat chat satu layar terminal: latar gelap, teks hijau/ungu monospace, pesan AI dalam kotak border, judul atas, input prompt shell. Jawaban Gemini, bahasa Indonesia, langsung tanpa basa-basi."\n3️⃣ Instruction: "Kamu asisten terminal. Jawab bahasa Indonesia, langsung, terstruktur, tanpa permintaan maaf."\n4️⃣ Uji pratinjau → 5️⃣ Publish → URL /apps/... + tombol Remix.\nBonus: Remix applet mana pun = fork resmi untuk membaca kodennya.'];
-case'kunci':{if(!arg)return['ok','🔑 Kunci: '+(GEMKEY?'TERPASANG ('+GEMKEY.slice(0,8)+'...) mode '+MODE:'belum ada — TIDAK WAJIB, 5 pintu gratis sudah hidup')];if(arg==='off'){GEMKEY='';S();return['ok','🔑 Kunci dilepas — rantai gratis mengambil alih.']}if(arg.length<20)return['err','Kunci terlalu pendek — salin utuh (AIza...)'];GEMKEY=arg.trim();S();return['ok','🔑 Kunci terpasang (perangkat ini saja).'+(GEMKEY.indexOf('AIza')!==0?'\n⚠ Biasanya diawali "AIza" — cek salinan.':'')+' Gemini jadi otak pertama. 🌐']}
-case'mode':{var m=arg.toLowerCase();if(m!=='auto'&&m!=='online'&&m!=='offline')return['err','Pilih: /mode auto | online | offline'];MODE=m;S();return['ok','🎚 Mode: '+m.toUpperCase()]}
-case'hitung':case'calc':{var h=calc(arg);return h===null?['err','Format: /hitung 12*8+5']:['ok','= '+h]}
-case'persen':{var d2=duaAngka(arg);if(!d2)return['err','Pakai: /persen 15 dari 200000'];return['ok','= '+persen(d2[0],d2[1])]}
-case'waktu':case'jam':case'tanggal':return['ok',waktuStr()];
-case'tulis':case'catat':{if(!arg)return['err','Pakai: /tulis <isi>'];CAT.push('['+new Date().toLocaleDateString('id-ID')+'] '+arg);S();return['ok','✓ Catatan #'+CAT.length+' tersimpan 💚']}
-case'catatan':return CAT.length?['ok','📒 CATATAN:\n'+CAT.map(function(c,i){return(i+1)+'. '+c}).join('\n')]:['err','Belum ada — /tulis <isi>'];
-case'hapuscatatan':{var i1=parseInt(arg)-1;if(!(i1>=0&&i1<CAT.length))return['err','Nomor salah — /catatan'];var h1=CAT.splice(i1,1)[0];S();return['ok','✓ Dihapus: '+h1]}
-case'unduhcatatan':{if(!CAT.length)return['err','Belum ada catatan'];dl('catatan.txt',CAT.join('\n'));return['ok','⬇️ catatan.txt diunduh']}
-case'todo':{if(!arg)return TODO.length?['ok','📋 TUGAS:\n'+TODO.map(function(x,i){return(i+1)+'. '+(x.d?'✅ ':'⬜ ')+x.t}).join('\n')]:['err','Pakai: /todo <tugas>'];TODO.push({t:arg,d:false});S();return['ok','✓ Tugas #'+TODO.length+': '+arg]}
-case'selesai':{var i2=parseInt(arg)-1;if(!(i2>=0&&i2<TODO.length))return['err','Nomor salah — /todo'];TODO[i2].d=!TODO[i2].d;S();return['ok',(TODO[i2].d?'✅ Selesai: ':'⬜ Dibuka: ')+TODO[i2].t]}
-case'ls':{var tg=arg?path(arg):cwd;if(!DIRS[tg])return['err','ls: bukan folder: '+(arg||cwd)];if(!DIRS[tg].length)return['ok','📁 '+tg+' — (kosong)'];return['ok','📁 '+tg+'\n'+DIRS[tg].map(function(n){var f=(tg==='/'?'':tg)+'/'+n;return(DIRS[f]?'📁 ':' ')+n}).join('\n')]}
-case'cd':{if(!arg||arg==='~'){cwd='/home/aku';S();return['ok','→ '+cwd]}if(arg==='..'){cwd=pOf(cwd);S();return['ok','→ '+cwd]}var t2=path(arg);if(!DIRS[t2])return['err','cd: tiada: '+arg];cwd=t2;S();return['ok','→ '+cwd]}
-case'pwd':return['ok','📍 '+cwd];
-case'cat':case'baca':{if(!arg)return['err','Pakai: /cat nama'];var t3=path(arg);if(DIRS[t3])return['err','Itu folder — /ls'];if(FILES[t3]===undefined)return['err','Tiada: '+arg];return['ok','📄 '+arg+':\n'+(FILES[t3]||'(kosong)')]}
-case'touch':{if(!arg)return['err','Pakai: /touch nama.txt'];var t4=path(arg),p4=pOf(t4);if(!DIRS[p4])return['err','Folder tiada — /mkdir dulu'];if(FILES[t4]!==undefined||DIRS[t4])return['err','Sudah ada'];FILES[t4]='';daftar(p4,nOf(t4));S();return['ok','✓ File: '+arg]}
-case'mkdir':{if(!arg)return['err','Pakai: /mkdir nama'];var t5=path(arg),p5=pOf(t5);if(!DIRS[p5])return['err','Induk tiada'];if(DIRS[t5]||FILES[t5]!==undefined)return['err','Nama dipakai'];DIRS[t5]=[];daftar(p5,nOf(t5));S();return['ok','✓ Folder: '+arg]}
-case'buat':{if(!arg)return['err','Pakai: /buat nama.txt isi'];var m6=pecah(arg),nama=m6?m6[0]:arg,isi=m6?m6[1]:'',t6=path(nama),p6=pOf(t6);if(!DIRS[p6])return['err','Folder tiada — /mkdir'];if(DIRS[t6])return['err','Itu folder'];FILES[t6]=isi;daftar(p6,nOf(t6));S();return['ok','✓ Disimpan: '+nama+' ('+isi.length+' kar.)']}
-case'rm':{if(!arg)return['err','Pakai: /rm nama'];var t7=path(arg);if(DIRS[t7])return['err','Folder — pakai /rmdir'];if(FILES[t7]===undefined)return['err','Tiada: '+arg];delete FILES[t7];DIRS[pOf(t7)]=(DIRS[pOf(t7)]||[]).filter(function(x){return x!==nOf(t7)});S();return['ok','✓ Dihapus: '+arg]}
-case'rmdir':{if(!arg)return['err','Pakai: /rmdir nama'];var t8=path(arg);if(!DIRS[t8])return['err','Bukan folder'];if(t8==='/')return['err','Akar tidak bisa'];if(DIRS[t8].length)return['err','Tidak kosong'];if(t8===cwd)return['err','Kamu di dalamnya — /cd ..'];delete DIRS[t8];DIRS[pOf(t8)]=(DIRS[pOf(t8)]||[]).filter(function(x){return x!==nOf(t8)});S();return['ok','✓ Folder dihapus: '+arg]}
-case'file':{var k9=Object.keys(FILES);return k9.length?['ok','📄 FILE:\n'+k9.map(function(f){return '  '+f+' ('+FILES[f].length+' kar.)'}).join('\n')]:['err','Belum ada — /buat']}
-case'unduh':{if(!arg)return['err','Pakai: /unduh nama'];var t9=path(arg);if(FILES[t9]===undefined)return['err','Tiada — /file'];dl(nOf(t9),FILES[t9]);return['ok','⬇️ '+nOf(t9)]}
-case'password':{var n=Math.max(6,Math.min(64,parseInt(arg)||16)),kk='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*',p='',rr=new Uint32Array(n);crypto.getRandomValues(rr);for(var i=0;i<n;i++)p+=kk[rr[i]%kk.length];return['ok','🔑 '+n+' karakter (crypto asli):\n'+p+'\n\nSalin sekarang — tidak kusimpan.']}
-case'acak':{var m10=pecah(arg);if(!m10||!angkaTok(m10[0])||!angkaTok(m10[1]))return['err','Pakai: /acak 1 100'];var a=+m10[0],b=+m10[1];if(a>=b)return['err','Pertama < kedua'];return['ok','🎲 '+Math.floor(Math.random()*(b-a+1)+a)+' ('+a+'–'+b+')']}
-case'upper':return arg?['ok',arg.toUpperCase()]:['err','/upper teks'];
-case'lower':return arg?['ok',arg.toLowerCase()]:['err','/lower teks'];
-case'balik':return arg?['ok',arg.split('').reverse().join('')]:['err','/balik teks'];
-case'hitungkar':return arg?['ok',arg.length+' karakter, '+arg.split(/\s+/).filter(function(w){return w}).length+' kata']:['err','/hitungkar teks'];
-case'tema':{var c={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[arg.toLowerCase()];if(!c)return['err','Pilihan: ungu hijau biru merah kuning pink'];var rs=document.documentElement.style;rs.setProperty('--aksen',c);rs.setProperty('--tfg',c);rs.setProperty('--tbd',c);try{localStorage.setItem('q4Tema',arg.toLowerCase())}catch(e){}return['ok','🎨 Tema: '+arg.toUpperCase()]}
-case'neofetch':return['ok',neoStr()];
-case'siapa':return['ok','QWEN BEBAS v'+VER+' 👑 — cermin cerdas satu file: 40 perintah, filesystem, neural, bridge probe nyata, riset 3 sumber, nalar berantai, penjaga anti-ngawur, memori percakapan, Gemini opsional milikmu.'];
-case'riwayat':return hist.length?['ok','⏱ RIWAYAT:\n'+hist.slice(-30).map(function(h,i){return(i+1)+'. '+h}).join('\n')]:['err','Belum ada riwayat'];
-case'bersih':case'clear':chat.innerHTML='';return['none',''];
-case'reset':{DIRS=JSON.parse(JSON.stringify(DIRS_DEF));FILES=JSON.parse(JSON.stringify(FILES_DEF));CAT=[];TODO=[];NNDATA=[];NND=null;hist=[];cwd='/home/aku';S();return['ok','🗑 Data direset. (Kunci & tema tetap milikmu: /kunci off untuk lepas.)']}
-case'ajar':{var m11=pecah(arg);if(!m11||!m11[1])return['err','Pakai: /ajar <label> <kalimat>'];NNDATA.push({l:m11[0].toLowerCase(),t:m11[1]});S();return['ok','✓ Contoh #'+NNDATA.length+' → label "'+m11[0]+'"\n(Min 2 label beda → /latih)']}
-case'latih':return latihNet(Math.max(10,Math.min(1000,parseInt(arg)||300)));
-case'prediksi':case'tebak':{if(!NND)return['err','/ajar positif ... → /ajar negatif ... → /latih → /prediksi'];if(!arg)return['err','/prediksi <kalimat>'];var f=fwd(NND,vec(arg,NND.V)),p12=f.p,b2=0;p12.forEach(function(v,i){if(v>p12[b2])b2=i});var h12='🧠 Prediksi: "'+NND.L[b2]+'" — '+(p12[b2]*100).toFixed(1)+'%\n';NND.L.forEach(function(l,i){h12+='  • '+l+': '+(p12[i]*100).toFixed(1)+'%\n'});var baru=tok(arg).filter(function(w){return NND.V.indexOf(w)<0});if(baru.length)h12+='\n⚠ Kata baru: '+baru.join(', ')+' → /ajar + /latih';return['ok',h12]}
-case'otak':case'status':{var pb=probeBridge();var h13='🧠 STATUS v'+VER+' BEBAS LENGKAP\n\n🎭 Kulit: '+document.body.dataset.skin+' | 📛 '+TITLE+'\n🌉 Bridge: '+pb.verdict+'\n🌐 Gemini: '+(GEMKEY?'SIAP ('+GEMMODEL+') mode '+MODE:'opsional (rantai gratis hidup)')+'\n🧠 Lokal: '+KB.length+' topik + 40 perintah + neural '+(NND?'AKTIF ('+NND.V.length+' kata)':'siaga')+'\n📁 Folder: '+Object.keys(DIRS).length+' | 📄 File: '+Object.keys(FILES).length+' | 📒 '+CAT.length+' | 📋 '+TODO.length+'\n📍 '+cwd+'\n\n/uji • /bridge • /riset • /nalar';return['ok',h13]}
-}
-return['err','Perintah tiada: /'+cmd+' — daftar: /perintah']}
-if(adaAngka(t)&&adaOp(t)){var h14=calc(t);if(h14!==null)return['ok','= '+h14]}
-var low2=t.toLowerCase(),kata=tok(low2),w0=kata.length?kata[0]:'';
-if(w0==='perintah'||w0==='help'||w0==='bantuan')return['ok',HELP];
-if((w0==='hitung'||w0==='calc')&&kata.length>1){var h15=calc(t.slice(t.search(/\s/)+1).trim());if(h15!==null)return['ok','= '+h15]}
-if(adaFrasa(low2))return['ok',waktuStr()];
-if(w0==='persen'){var d16=duaAngka(low2);if(d16)return['ok','= '+persen(d16[0],d16[1])]}
-var adaTanya=t.indexOf('?')>=0||kata.some(function(w){return KATATANYA.indexOf(w)>=0});
-if(!adaTanya&&w0){if((kata.length===1&&ANYCMD.indexOf(w0)>=0)||(kata.length>1&&TECHMULTI.indexOf(w0)>=0))return['err','"'+w0+'" perintah di sini — pakai: /'+t]}
-var best=null,bs=0;KB.forEach(function(e){var s=0;e.k.forEach(function(k){if(low2.indexOf(k)>=0)s+=k.length*2;else kata.forEach(function(w){if(w.length>2&&(k.indexOf(w)>=0||w.indexOf(k)>=0))s+=w.length})});if(s>bs){bs=s;best=e}});
-if(best&&bs>=4)return['ok',best.a];
-return['bebas',t]}
-function bubble(txt,cls){var d=document.createElement('div');d.className='msg '+cls;var pref=(cls.indexOf('user')>=0&&document.body.dataset.skin==='kembar')?'aku@bebas:~$ ':'';d.textContent=pref+txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
-function ingat(v,j,c){riw.push({t:v,c:'user'},{t:j,c:c});if(riw.length>80)riw=riw.slice(-80)}
-async function otakBebas(v,onStep){window.__qaiBebasErr='';var ctx=konteks(v,3,200),k=kataKunci(v);
-var langkah=[['Pollinations GET',function(){return pGet(ctx)}],['Pollinations POST',function(){return pPost(ctx)}],['Wikipedia ID',function(){return wID(k)}],['Wikipedia EN',function(){return wEN(k)}],['DuckDuckGo',function(){return ddg(k)}]];
-for(var i=0;i<langkah.length;i++){if(onStep)onStep('▸ pintu '+(i+1)+'/5: '+langkah[i][0]+'...');
-try{var r=await langkah[i][1]();if(!r){window.__qaiBebasErr+=langkah[i][0]+': tiada hasil | ';continue}
-if(kenaMarker(r)){window.__qaiBebasErr+=langkah[i][0]+': balikan error ditolak penjaga | ';continue}
-if(i>=2&&!relevan(v,r)){window.__qaiBebasErr+=langkah[i][0]+': tak relevan, ditolak penjaga | ';continue}
-return r}catch(e){window.__qaiBebasErr+=langkah[i][0]+': '+errStr(e)+' | '}}
-return null}
-async function risetFlow(k){var hs=await Promise.allSettled([wID(k),wEN(k),ddg(k)]);var out=[];hs.forEach(function(h){if(h.status==='fulfilled'&&h.value)out.push(h.value)});return out.length?out.join('\n\n'):null}
-async function nalarFlow(v,onStep){onStep('▸ nalar 1/3: urai kata kunci...');var k=kataKunci(v);
-onStep('▸ nalar 2/3: hipotesis lewat LLM...');var hip=null;try{hip=await pGet('Jawab langkah demi langkah, lalu simpulkan: '+konteks(v,2,150))}catch(e){}
-onStep('▸ nalar 3/3: cek fakta lintas sumber...');var fak=null;try{fak=await wID(k)||await wEN(k)}catch(e){}
-return '🧭 RANTAI NALAR\n\n1) Urai: "'+k+'"\n\n2) Hipotesis (LLM):\n'+(hip||'(pintu LLM padat — lewati)')+'\n\n3) Cek fakta:\n'+(fak||'(sumber fakta padat — lewati)')+'\n\n4) Simpulan: bandingkan langkah 2 & 3; yang cocok = jawaban kerja, yang beda = perlu verifikasi manual.'}
-riw.forEach(function(m){bubble(m.t,m.c==='user'?'user':'ai')});
-if(!riw.length)bubble(SAPA,'ai');
-function kirim(){var v=q.value.trim();if(!v)return;bubble(v,'user');q.value='';hist.push(v);if(hist.length>50)hist=hist.slice(-50);
-var isCmd=v.charAt(0)==='/';
-setTimeout(async function(){
-if(isCmd){var r0=proses(v);
-if(r0[0]==='riset'){var el0=bubble('▸ riset 3 sumber: '+r0[1]+'...','ai');var j0=await risetFlow(kataKunci(r0[1]));if(j0){el0.textContent=j0;ingat(v,j0,'ai')}else{var f0=pesanLokal(r0[1]);el0.textContent=f0;el0.className='msg ai err';ingat(v,f0,'ai')}S();return}
-if(r0[0]==='nalar'){var el1=bubble('▸ nalar berantai...','ai');var j1=await nalarFlow(r0[1],function(s){el1.textContent=s;chat.scrollTop=chat.scrollHeight});el1.textContent=j1;ingat(v,j1,'ai');S();return}
-if(r0[0]!=='none'){var c0=r0[0]==='err'?'ai err':'ai';bubble(r0[1],c0);ingat(v,r0[1],c0)}S();return}
-var r1=proses(v);
-if(r1[0]!=='bebas'){if(r1[0]!=='none'){var c1=r1[0]==='err'?'ai err':'ai';bubble(r1[1],c1);ingat(v,r1[1],c1)}S();return}
-if(navigator.onLine===false||MODE==='offline'){var j2=pesanLokal(v);bubble(j2,'ai err');ingat(v,j2,'ai err');S();return}
-if(GEMKEY&&MODE!=='offline'){var el2=bubble('▸ Gemini ('+GEMMODEL+')...','ai');try{var j3=await gemini(v);el2.textContent=j3;ingat(v,j3,'ai');S();return}catch(e){window.__qaiBebasErr='Gemini kunci: '+errStr(e)+' | '}}
-if(BRIDGE.token&&MODE!=='offline'){var el3=bubble('▸ bridge bearer ('+mask(BRIDGE.token)+')...','ai');try{var j4=await geminiBearer(v,BRIDGE.token);el3.textContent=j4;ingat(v,j4,'ai');S();return}catch(e){window.__qaiBebasErr+='bridge bearer: '+errStr(e)+' | '}}
-var el4=bubble('▸ berpikir lewat 5 pintu gratis...','ai');
-var j5=await otakBebas(v,function(s){el4.textContent=s;chat.scrollTop=chat.scrollHeight});
-if(j5){el4.textContent=j5;el4.className='msg ai';ingat(v,j5,'ai');S();return}
-var fin=pesanLokal(v);el4.textContent=fin;el4.className='msg ai err';ingat(v,fin,'ai err');S()},150)}
-document.getElementById('go').addEventListener('click',kirim);
-q.addEventListener('keydown',function(e){if(e.key==='Enter')kirim()});
-try{var th=localStorage.getItem('q4Tema');if(th){var cc={ungu:'#a371f7',hijau:'#3fb950',biru:'#58a6ff',merah:'#f85149',kuning:'#d29922',pink:'#f778ba'}[th];if(cc){var rs2=document.documentElement.style;rs2.setProperty('--aksen',cc);rs2.setProperty('--tfg',cc);rs2.setProperty('--tbd',cc)}}}catch(e){}
-probeBridge();
-window.__qaiOK=true;
-</script>
-<script>
-setTimeout(function(){if(window.__qaiOK)return;var msg=window.__qaiErr?('⚠ Error JS: '+window.__qaiErr+'\nKirim screenshot kotak ini — kutunjuk barisnya.'):('⚠ Script tidak berjalan — salinan terpotong saat paste. Upload ulang bagian yang kurang.');var d=document.createElement('div');d.style.cssText='color:#fbbf24;background:#1c1006;border:1px solid #f59e0b;margin:8px 14px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace';d.textContent=msg;document.body.insertBefore(d,document.getElementById('input-bar'));},1500);
-</script>
-</body></html>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+  body { background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); height:100vh; display:flex; justify-content:center; align-items:center; }
+  .chat-box { width:90%; max-width:700px; height:85vh; background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); border-radius:20px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; overflow:hidden; }
+  .header { padding:20px; text-align:center; color:#fff; background:rgba(255,255,255,0.05); }
+  .header h1 { font-size:1.3em; background:linear-gradient(90deg,#a78bfa,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .header p { font-size:0.8em; color:#9ca3af; margin-top:4px; }
+  #messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .msg { max-width:80%; padding:12px 16px; border-radius:16px; color:#fff; font-size:0.95em; line-height:1.5; white-space:pre-wrap; animation:pop 0.3s ease; }
+  @keyframes pop { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .user { align-self:flex-end; background:linear-gradient(135deg,#7c3aed,#4f46e5); border-bottom-right-radius:4px; }
+  .ai { align-self:flex-start; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.1); border-bottom-left-radius:4px; }
+  .input-area { display:flex; gap:10px; padding:16px; background:rgba(0,0,0,0.2); }
+  #input { flex:1; padding:14px 18px; border-radius:12px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:#fff; font-size:0.95em; outline:none; }
+  #input::placeholder { color:#9ca3af; }
+  #send { padding:14px 24px; border:none; border-radius:12px; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff; font-weight:bold; cursor:pointer; transition:transform 0.15s; }
+  #send:hover { transform:scale(1.05); }
+  #send:disabled { opacity:0.5; cursor:wait; }
+</style>
+</head>
+<body>
+<div class="chat-box">
+  <div class="header">
+    <h1>🤖 AI Kembaranku</h1>
+    <p>Ditenagai oleh Qwen3 • Otak Utama: Kamu & AI</p>
+  </div>
+  <div id="messages"></div>
+  <div class="input-area">
+    <input id="input" placeholder="Ketik perintah apa pun..." onkeydown="if(event.key==='Enter')kirim()">
+    <button id="send" onclick="kirim()">Kirim</button>
+  </div>
+</div>
 
+<script>
+const SYSTEM_PROMPT = `Kamu adalah AI Kembaranku, asisten AI cerdas yang ramah, jujur, dan proaktif. Karaktermu:
+1. GAYA: Hangat, emoji secukupnya, bahasa Indonesia santai tapi profesional.
+2. PRINSIP: Selalu fokus pada SOLUSI. Jika ada permintaan berisiko, tetap bantu dengan alternatif terbaik — bukan menolak mentah-mentah.
+3. KUALITAS: Jawaban terstruktur dan mengejar hasil terbaik.
+4. JUJUR: Tidak mengarang fakta.
+5. INISIATIF: Akhiri dengan saran langkah berikutnya.`;
+
+let riwayat = [];
+const messages = document.getElementById('messages');
+const input = document.getElementById('input');
+const btn = document.getElementById('send');
+
+function tambahPesan(teks, tipe) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + tipe;
+  div.textContent = teks;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+async function kirim() {
+  const teks = input.value.trim();
+  if (!teks) return;
+  
+  input.value = '';
+  btn.disabled = true;
+  tambahPesan(teks, 'user');
+  riwayat.push({ role: 'user', content: teks });
+  
+  const indikator = tambahPesan('🤔 Sedang berpikir...', 'ai');
+  
+  try {
+    const res = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'qwen3:8b',
+        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...riwayat],
+        stream: false
+      })
+    });
+    const data = await res.json();
+    const jawaban = data.message.content;
+    riwayat.push({ role: 'assistant', content: jawaban });
+    indikator.textContent = jawaban;
+  } catch (e) {
+    indikator.textContent = '⚠️ Tidak bisa terhubung ke otak AI. Pastikan Ollama berjalan (ollama serve) dan model sudah di-pull.';
+  }
+  
+  btn.disabled = false;
+  input.focus();
+}
+</script>
+</body>
+</html>
